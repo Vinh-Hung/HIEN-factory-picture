@@ -622,12 +622,13 @@ async function submitTask(){
     var r=await apiPost({action:"addTask",engineer:eng,factory:fac,title:title,description:desc});
     if(!r.ok){showToast("Lỗi: "+(r.error||"?"),"error");return;}
     var taskId=r.id;
-    // Upload pending photos
+    // Upload pending photos — từng ảnh một, resize trước để tránh payload quá lớn
     if(taskPending.length>0){
       for(var i=0;i<taskPending.length;i++){
         var photo=taskPending[i];
-        var data=await toB64(photo);
-        await apiPost({action:"addTaskPhoto",id:taskId,photo:{name:photo.name,size:photo.size,data:data}});
+        var data=await toB64Resized(photo, 1200, 0.82);
+        var pr=await apiPost({action:"addTaskPhoto",id:taskId,photo:{name:photo.name,size:photo.size,data:data}});
+        if(!pr||!pr.ok){showToast("Cảnh báo: không upload được ảnh "+photo.name,"error");}
       }
     }
     document.getElementById("tk-eng").value="";
@@ -731,21 +732,33 @@ function openTaskModal(id){
   if(t.status==="Mới cập nhật") document.getElementById("sbtn-new").classList.add("active");
   else if(t.status==="Đã nhận thông tin") document.getElementById("sbtn-recv").classList.add("active");
   else if(t.status==="Done") document.getElementById("sbtn-done").classList.add("active");
-  // Photos
-  renderModalPhotos(t.photos||[]);
   // Dates
   var dates="Tạo: "+fmtDatetime(t.createdAt);
   if(t.updatedAt&&t.updatedAt!==t.createdAt) dates+="  ·  Cập nhật: "+fmtDatetime(t.updatedAt);
   document.getElementById("tm-dates").textContent=dates;
+  // Photos — lazy load riêng, không lấy từ cache allTasks (vì getTasks không trả base64)
+  document.getElementById("tm-photo-count").textContent=t.photoCount||0;
+  document.getElementById("tm-photos").innerHTML='<div style="color:#bbb;font-size:13px;padding:8px 0">Đang tải ảnh...</div>';
   document.getElementById("task-modal").classList.add("open");
+  loadTaskPhotosForModal(id);
 }
 function closeTaskModal(){document.getElementById("task-modal").classList.remove("open");currentTaskId=null;}
+
+async function loadTaskPhotosForModal(id){
+  try{
+    var r=await apiGet({action:"getTaskPhotos",id:id});
+    if(r.ok) renderModalPhotos(r.photos||[]);
+    else document.getElementById("tm-photos").innerHTML='<div style="color:#bbb;font-size:13px">Không thể tải ảnh</div>';
+  }catch(e){
+    document.getElementById("tm-photos").innerHTML='<div style="color:#bbb;font-size:13px">Lỗi tải ảnh: '+e.message+'</div>';
+  }
+}
 
 function renderModalPhotos(photos){
   document.getElementById("tm-photo-count").textContent=photos.length;
   var el=document.getElementById("tm-photos");
   if(!photos.length){el.innerHTML='<div style="color:#bbb;font-size:13px">Chưa có ảnh đính kèm</div>';return;}
-  el.innerHTML=photos.map(function(p,i){
+  el.innerHTML=photos.map(function(p){
     var info=encodeURIComponent(JSON.stringify({pName:p.name,pData:p.data,factory:"",date:"",eng:""}));
     return'<div class="modal-photo-item" onclick=\'openLB("'+info+'")\'><img src="'+p.data+'" alt="'+esc(p.name)+'" loading="lazy" /></div>';
   }).join("");
@@ -773,21 +786,25 @@ async function uploadTaskPhotos(fileList){
   if(!currentTaskId) return;
   var files=Array.from(fileList);
   if(!files.length) return;
+  var savedId=currentTaskId;
   showToast("Đang upload "+files.length+" ảnh...");
   try{
-    var last;
+    var ok=true;
     for(var i=0;i<files.length;i++){
-      var f=files[i]; var data=await toB64(f);
-      last=await apiPost({action:"addTaskPhoto",id:currentTaskId,photo:{name:f.name,size:f.size,data:data}});
+      var f=files[i];
+      // Nén/resize ảnh trước nếu > 800KB để tránh payload quá lớn
+      var data=await toB64Resized(f, 1200, 0.82);
+      var r=await apiPost({action:"addTaskPhoto",id:savedId,photo:{name:f.name,size:f.size,data:data}});
+      if(!r||!r.ok){ok=false;showToast("Lỗi upload "+(f.name||"ảnh")+": "+(r&&r.error||"?"),"error");break;}
     }
-    if(last&&last.ok){
-      // reload task to get updated photos
-      var r=await apiGet({action:"getTasks"});
-      if(r.ok){allTasks=r.tasks||[];}
-      var t=allTasks.find(function(x){return x.id===currentTaskId;});
-      if(t) renderModalPhotos(t.photos||[]);
+    if(ok){
       showToast("✅ Đã thêm "+files.length+" ảnh");
-    } else showToast("Lỗi upload ảnh","error");
+      // Cập nhật photoCount trong cache mà không reload toàn bộ
+      var t=allTasks.find(function(x){return x.id===savedId;});
+      if(t){ t.photoCount=(t.photoCount||0)+files.length; renderTaskBoard(); }
+      // Reload ảnh trong modal qua getTaskPhotos (chỉ ảnh 1 task)
+      if(currentTaskId===savedId) await loadTaskPhotosForModal(savedId);
+    }
   }catch(e){showToast("Lỗi: "+e.message,"error");}
   document.getElementById("tm-file").value="";
 }
@@ -953,6 +970,32 @@ function fmtDatetime(iso){
 function daysLeft(at){return Math.ceil((new Date(at).getTime()+RETENTION*86400000-Date.now())/86400000);}
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 function toB64(file){return new Promise(function(res,rej){var r=new FileReader();r.onload=function(){res(r.result);};r.onerror=rej;r.readAsDataURL(file);});}
+// Resize ảnh xuống maxW px và nén với quality trước khi upload — giảm size payload đáng kể
+function toB64Resized(file, maxW, quality){
+  maxW=maxW||1200; quality=quality||0.82;
+  return new Promise(function(res,rej){
+    var reader=new FileReader();
+    reader.onerror=rej;
+    reader.onload=function(e){
+      var img=new Image();
+      img.onerror=function(){res(e.target.result);}; // fallback: trả nguyên
+      img.onload=function(){
+        var w=img.width, h=img.height;
+        if(w<=maxW&&h<=maxW){res(e.target.result);return;} // nhỏ rồi, không cần resize
+        var scale=Math.min(maxW/w, maxW/h);
+        var canvas=document.createElement("canvas");
+        canvas.width=Math.round(w*scale); canvas.height=Math.round(h*scale);
+        var ctx=canvas.getContext("2d");
+        ctx.drawImage(img,0,0,canvas.width,canvas.height);
+        // Giữ JPEG cho ảnh chụp, PNG cho ảnh khác
+        var mime=file.type==="image/png"?"image/png":"image/jpeg";
+        res(canvas.toDataURL(mime, quality));
+      };
+      img.src=e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
 function showToast(msg,type){
   clearTimeout(toastTimer);var t=document.getElementById("toast");
   t.textContent=msg;t.className="toast "+(type||"success");
