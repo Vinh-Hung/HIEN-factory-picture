@@ -619,45 +619,26 @@ async function submitTask(){
   var desc=document.getElementById("tk-desc").value.trim();
   if(!eng||!title){showToast("Vui lòng chọn kỹ sư và nhập tiêu đề","error");return;}
 
-  // ── Bước 1: Tạo task (không kèm ảnh) — nhẹ, ít có khả năng lỗi
-  var taskId;
-  try{
-    var r=await apiPost({action:"addTask",engineer:eng,factory:fac,title:title,description:desc});
-    if(!r.ok){showToast("Lỗi tạo task: "+(r.error||"?"),"error");return;}
-    taskId=r.id;
-  }catch(e){showToast("Lỗi tạo task: "+e.message,"error");return;}
+  // Chụp photos trước khi reset form
+  var photosToUpload=taskPending.slice();
 
-  // ── Reset form NGAY sau khi task tạo xong — tránh duplicate nếu bước sau lỗi
-  var photosToUpload=taskPending.slice(); // copy
+  // Reset form ngay — tránh double submit
   document.getElementById("tk-eng").value="";
   document.getElementById("tk-fac").value="";
   document.getElementById("tk-title").value="";
   document.getElementById("tk-desc").value="";
   taskPending=[]; renderTaskPreviews();
-  showToast("✅ Đã tạo task cho "+eng+(photosToUpload.length?" — đang upload ảnh...":""));
-  await loadTasks(); // load ngay để task hiện lên board
 
-  // ── Bước 2: Upload ảnh riêng — nếu lỗi thì task đã tạo xong rồi, không ảnh hưởng
-  if(photosToUpload.length>0){
-    var uploaded=0;
-    for(var i=0;i<photosToUpload.length;i++){
-      var photo=photosToUpload[i];
-      try{
-        var data=await toB64Resized(photo, 1200, 0.82);
-        var pr=await apiPost({action:"addTaskPhoto",id:taskId,photo:{name:photo.name,size:photo.size,data:data}});
-        if(pr&&pr.ok) uploaded++;
-        else showToast("Không upload được: "+photo.name,"error");
-      }catch(ex){
-        showToast("Lỗi upload ảnh "+photo.name+": "+ex.message,"error");
-      }
-    }
-    if(uploaded>0){
-      showToast("✅ Đã upload "+uploaded+"/"+photosToUpload.length+" ảnh");
-      // Cập nhật photoCount trong cache task vừa tạo
-      var t=allTasks.find(function(x){return x.id===taskId;});
-      if(t){t.photoCount=uploaded; renderTaskBoard();}
-    }
-  }
+  try{
+    // Gom tất cả ảnh + tạo task trong 1 POST duy nhất — giống hệt doUpload
+    var photos=await Promise.all(photosToUpload.map(async function(f){
+      return{name:f.name, size:f.size, data:await toB64(f)};
+    }));
+    var r=await apiPost({action:"addTask",engineer:eng,factory:fac,title:title,description:desc,photos:photos});
+    if(!r.ok){showToast("Lỗi tạo task: "+(r.error||"?"),"error");return;}
+    showToast("✅ Đã tạo task cho "+eng+(photos.length?" kèm "+photos.length+" ảnh":""));
+    await loadTasks();
+  }catch(e){showToast("Lỗi: "+e.message,"error");}
 }
 
 async function loadTasks(){
@@ -806,26 +787,23 @@ async function uploadTaskPhotos(fileList){
   var files=Array.from(fileList);
   if(!files.length) return;
   var savedId=currentTaskId;
+  document.getElementById("tm-file").value="";
   showToast("Đang upload "+files.length+" ảnh...");
   try{
-    var ok=true;
-    for(var i=0;i<files.length;i++){
-      var f=files[i];
-      // Nén/resize ảnh trước nếu > 800KB để tránh payload quá lớn
-      var data=await toB64Resized(f, 1200, 0.82);
-      var r=await apiPost({action:"addTaskPhoto",id:savedId,photo:{name:f.name,size:f.size,data:data}});
-      if(!r||!r.ok){ok=false;showToast("Lỗi upload "+(f.name||"ảnh")+": "+(r&&r.error||"?"),"error");break;}
-    }
-    if(ok){
+    // Gom tất cả ảnh vào 1 POST duy nhất — giống hệt doUpload
+    var photos=await Promise.all(files.map(async function(f){
+      return{name:f.name, size:f.size, data:await toB64(f)};
+    }));
+    var r=await apiPost({action:"addTaskPhoto", id:savedId, photos:photos});
+    if(r&&r.ok){
       showToast("✅ Đã thêm "+files.length+" ảnh");
-      // Cập nhật photoCount trong cache mà không reload toàn bộ
       var t=allTasks.find(function(x){return x.id===savedId;});
-      if(t){ t.photoCount=(t.photoCount||0)+files.length; renderTaskBoard(); }
-      // Reload ảnh trong modal qua getTaskPhotos (chỉ ảnh 1 task)
+      if(t){ t.photoCount=r.count; renderTaskBoard(); }
       if(currentTaskId===savedId) await loadTaskPhotosForModal(savedId);
+    } else {
+      showToast("Lỗi upload: "+(r&&r.error||"?"),"error");
     }
   }catch(e){showToast("Lỗi: "+e.message,"error");}
-  document.getElementById("tm-file").value="";
 }
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
