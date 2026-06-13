@@ -112,7 +112,7 @@ a { color: #1D9E75; }
   <div class="header">
     <div>
       <div class="header-title">📷 Quản lý ảnh kiểm tra nhà máy</div>
-      <div class="header-sub">Google Sheets · Tự xóa sau 30 ngày · <span id="hdr-count" style="color:#1D9E75;"></span></div>
+      <div class="header-sub">Google Sheets · Tự xóa sau 33 ngày · <span id="hdr-count" style="color:#1D9E75;"></span></div>
     </div>
     <div class="header-btns">
       <button class="btn-sm" onclick="toggleMgr()">🏭 Nhà máy <span id="mgr-arrow">▼</span></button>
@@ -206,7 +206,7 @@ a { color: #1D9E75; }
 
 <script>
 const LS_KEY    = "factory_app_url_v2";
-const RETENTION = 30;
+const RETENTION = 33;
 let API_URL     = localStorage.getItem(LS_KEY) || "";
 let factories   = [];
 let pendingFiles = [];
