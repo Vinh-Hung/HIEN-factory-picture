@@ -7,14 +7,14 @@
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f4f4f4; color: #111; min-height: 100vh; }
-.shell { max-width: 800px; margin: 0 auto; padding: 24px 16px 80px; }
+.shell { max-width: 860px; margin: 0 auto; padding: 24px 16px 80px; }
 input, select { width: 100%; padding: 9px 11px; font-size: 14px; border: 1px solid #ddd; border-radius: 8px; background: #fff; color: #111; outline: none; font-family: inherit; transition: border-color 0.15s; }
 input:focus, select:focus { border-color: #1D9E75; }
 button { font-family: inherit; cursor: pointer; }
 .card  { background: #fff; border: 1px solid #e8e8e8; border-radius: 12px; padding: 20px; margin-bottom: 12px; }
 .muted { background: #f9f9f9; border: 1px solid #eee; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
-.tabs { display: flex; border-bottom: 1px solid #e8e8e8; margin-bottom: 24px; }
-.tab  { padding: 10px 20px; font-size: 14px; font-weight: 500; color: #888; background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -1px; cursor: pointer; }
+.tabs { display: flex; border-bottom: 1px solid #e8e8e8; margin-bottom: 24px; overflow-x: auto; }
+.tab  { padding: 10px 18px; font-size: 14px; font-weight: 500; color: #888; background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -1px; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
 .tab.active { color: #111; border-bottom-color: #111; }
 .btn-primary { background: #111; color: #fff; border: none; border-radius: 8px; padding: 11px 20px; font-size: 14px; font-weight: 500; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; }
 .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
@@ -33,7 +33,7 @@ button { font-family: inherit; cursor: pointer; }
 .stat { background: #f5f5f5; border-radius: 8px; padding: 14px 16px; }
 .stat-n { font-size: 24px; font-weight: 600; }
 .stat-l { font-size: 12px; color: #888; margin-top: 2px; }
-.filter-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; align-items: end; margin-bottom: 10px; }
+.filter-row { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; align-items: end; margin-bottom: 10px; }
 .action-row { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
 .lbl { font-size: 12px; color: #666; display: block; margin-bottom: 6px; }
 .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
@@ -49,6 +49,7 @@ button { font-family: inherit; cursor: pointer; }
 .badge-gray  { background: #f0f0f0; color: #666; }
 .badge-green { background: #E1F5EE; color: #0F6E56; }
 .badge-red   { background: #FCEBEB; color: #A32D2D; }
+.badge-blue  { background: #E8F0FE; color: #1a56db; }
 .lightbox { position: fixed; inset: 0; background: rgba(0,0,0,.88); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 999; gap: 12px; }
 .lightbox.open { display: flex; }
 .lightbox img { max-width: 90vw; max-height: 80vh; object-fit: contain; border-radius: 8px; }
@@ -80,10 +81,68 @@ a { color: #1D9E75; }
 .header-title { font-size: 20px; font-weight: 600; }
 .header-sub { font-size: 12px; color: #888; margin-top: 3px; }
 .header-btns { display: flex; gap: 8px; flex-wrap: wrap; }
-@media (max-width: 500px) {
+
+/* ── Dashboard styles ─────────────────────────────────────────────────────── */
+.db-section-title { font-size: 11px; font-weight: 600; color: #999; text-transform: uppercase; letter-spacing: .06em; margin: 20px 0 10px; }
+.db-top { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 4px; }
+.db-kpi { background: #fff; border: 1px solid #e8e8e8; border-radius: 12px; padding: 16px 18px; }
+.db-kpi-n { font-size: 28px; font-weight: 700; color: #111; line-height: 1; }
+.db-kpi-l { font-size: 12px; color: #888; margin-top: 5px; }
+.db-kpi-sub { font-size: 11px; color: #1D9E75; margin-top: 3px; font-weight: 500; }
+
+/* Bar chart */
+.bar-chart { display: flex; flex-direction: column; gap: 10px; }
+.bar-row { display: grid; grid-template-columns: 130px 1fr 60px; gap: 10px; align-items: center; }
+.bar-label { font-size: 13px; font-weight: 500; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar-track { background: #f0f0f0; border-radius: 99px; height: 10px; overflow: hidden; }
+.bar-fill  { height: 100%; border-radius: 99px; transition: width .4s; }
+.bar-val   { font-size: 13px; font-weight: 600; color: #111; text-align: right; }
+
+/* Calendar heatmap */
+.cal-wrap { overflow-x: auto; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; min-width: 300px; }
+.cal-day-hdr { font-size: 10px; color: #bbb; text-align: center; padding-bottom: 2px; font-weight: 600; }
+.cal-cell { aspect-ratio: 1; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; cursor: default; position: relative; }
+.cal-cell.empty { background: transparent; }
+.cal-cell.zero  { background: #f0f0f0; color: #ccc; }
+.cal-cell.lvl1  { background: #c7f0df; color: #0a6644; }
+.cal-cell.lvl2  { background: #6dd4a8; color: #064d33; }
+.cal-cell.lvl3  { background: #1D9E75; color: #fff; }
+.cal-cell.lvl4  { background: #0f6e52; color: #fff; }
+.cal-cell.today { outline: 2px solid #111; }
+.cal-cell .cal-num { font-size: 9px; opacity: 0.85; }
+
+/* Cross table */
+.cross-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.cross-table th { background: #f5f5f5; padding: 8px 12px; text-align: left; font-weight: 600; font-size: 12px; border: 1px solid #e8e8e8; }
+.cross-table td { padding: 8px 12px; border: 1px solid #e8e8e8; }
+.cross-table tr:hover td { background: #fafafa; }
+.cross-table .num { text-align: right; font-weight: 600; color: #111; }
+.cross-table .total-col { background: #f9f9f9; font-weight: 700; color: #1D9E75; }
+.cross-table .zero-cell { color: #ddd; text-align: right; }
+
+/* Engineer card list */
+.eng-cards { display: flex; flex-direction: column; gap: 8px; }
+.eng-card { background: #fff; border: 1px solid #e8e8e8; border-radius: 10px; padding: 12px 16px; display: flex; align-items: center; gap: 14px; }
+.eng-avatar { width: 38px; height: 38px; border-radius: 50%; background: #111; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; flex-shrink: 0; }
+.eng-info { flex: 1; min-width: 0; }
+.eng-name { font-size: 14px; font-weight: 600; }
+.eng-meta { font-size: 12px; color: #888; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.eng-stat { text-align: right; flex-shrink: 0; }
+.eng-stat-n { font-size: 20px; font-weight: 700; color: #111; }
+.eng-stat-l { font-size: 11px; color: #888; }
+
+/* Month picker */
+.month-row { display: flex; gap: 8px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+.month-row input[type=month] { width: auto; }
+
+@media (max-width: 600px) {
   .row2 { grid-template-columns: 1fr; }
   .filter-row { grid-template-columns: 1fr 1fr; }
   .filter-row > *:last-child { grid-column: span 2; }
+  .db-top { grid-template-columns: repeat(2,1fr); }
+  .bar-row { grid-template-columns: 90px 1fr 50px; }
+  .bar-label { font-size: 12px; }
 }
 </style>
 </head>
@@ -120,7 +179,7 @@ a { color: #1D9E75; }
     </div>
   </div>
 
-  <!-- Factory panel -->
+  <!-- Factory manager panel -->
   <div id="mgr-panel" class="muted" style="display:none;">
     <div style="font-size:11px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Quản lý nhà máy</div>
     <div class="pills" id="factory-pills"><div style="color:#bbb;font-size:13px;">Đang tải...</div></div>
@@ -132,11 +191,12 @@ a { color: #1D9E75; }
 
   <!-- Tabs -->
   <div class="tabs">
-    <button class="tab active" id="tab-upload" onclick="switchTab('upload')">⬆ Upload ảnh</button>
-    <button class="tab" id="tab-search" onclick="switchTab('search')">🔍 Tìm kiếm</button>
+    <button class="tab active" id="tab-upload"    onclick="switchTab('upload')">⬆ Upload ảnh</button>
+    <button class="tab"        id="tab-dashboard" onclick="switchTab('dashboard')">📊 Dashboard</button>
+    <button class="tab"        id="tab-search"    onclick="switchTab('search')">🔍 Tìm kiếm</button>
   </div>
 
-  <!-- Upload pane -->
+  <!-- ── Upload pane ─────────────────────────────────────────────────────── -->
   <div id="pane-upload">
     <div class="card">
       <div class="row2">
@@ -168,7 +228,18 @@ a { color: #1D9E75; }
     <button class="btn-primary" id="btn-upload" onclick="doUpload()" disabled>☁ Lưu ảnh lên Google Sheets</button>
   </div>
 
-  <!-- Search pane -->
+  <!-- ── Dashboard pane ──────────────────────────────────────────────────── -->
+  <div id="pane-dashboard" style="display:none;">
+    <div class="month-row">
+      <input type="month" id="db-month" style="max-width:180px;" />
+      <button class="btn-sm" onclick="loadDashboard()">🔄 Tải dữ liệu</button>
+    </div>
+    <div id="db-content">
+      <div class="empty"><span class="empty-icon">📊</span>Bấm <strong>Tải dữ liệu</strong> để xem thống kê tháng</div>
+    </div>
+  </div>
+
+  <!-- ── Search pane ─────────────────────────────────────────────────────── -->
   <div id="pane-search" style="display:none;">
     <div class="stats">
       <div class="stat"><div class="stat-n" id="st-photos">0</div><div class="stat-l">Tổng ảnh</div></div>
@@ -181,8 +252,12 @@ a { color: #1D9E75; }
         <select id="f-fac"><option value="">Tất cả</option></select>
       </div>
       <div>
-        <label class="lbl">Ngày</label>
-        <input type="date" id="f-date" />
+        <label class="lbl">Từ ngày</label>
+        <input type="date" id="f-date-from" />
+      </div>
+      <div>
+        <label class="lbl">Đến ngày</label>
+        <input type="date" id="f-date-to" />
       </div>
       <button class="btn-sm" onclick="doSearch()" style="padding:9px 18px;">🔍 Tìm</button>
     </div>
@@ -218,6 +293,8 @@ window.onload = function() {
   if (!API_URL) { showSetup(); return; }
   showApp();
   document.getElementById("up-date").value = today();
+  // Default month picker = current month
+  document.getElementById("db-month").value = today().slice(0,7);
   loadFactories();
 };
 
@@ -230,12 +307,13 @@ function showApp() {
   document.getElementById("app").style.display = "block";
 }
 function saveUrl() {
-  const url = document.getElementById("url-input").value.trim();
+  var url = document.getElementById("url-input").value.trim();
   if (!url.startsWith("http")) { showToast("URL không hợp lệ","error"); return; }
   localStorage.setItem(LS_KEY, url);
   API_URL = url;
   showApp();
   document.getElementById("up-date").value = today();
+  document.getElementById("db-month").value = today().slice(0,7);
   loadFactories();
 }
 function resetUrl() {
@@ -245,27 +323,23 @@ function resetUrl() {
 }
 
 // ── API helpers ───────────────────────────────────────────────────────────────
-// GET — dùng cho search & getFactories (tránh CORS preflight)
 async function apiGet(params) {
-  const qs = Object.entries(params).map(function([k,v]){ return k + "=" + encodeURIComponent(v); }).join("&");
-  const url = API_URL + "?" + qs;
-  // Apps Script trả về 302 redirect đến URL thật — cần follow
-  const res = await fetch(url, { redirect: "follow", cache: "no-store" });
-  const text = await res.text();
+  var qs = Object.entries(params).map(function(kv){ return kv[0] + "=" + encodeURIComponent(kv[1]); }).join("&");
+  var url = API_URL + "?" + qs;
+  var res = await fetch(url, { redirect: "follow", cache: "no-store" });
+  var text = await res.text();
   if (!text || text.trim() === "") throw new Error("Phản hồi rỗng — kiểm tra lại Apps Script đã deploy chưa");
   try { return JSON.parse(text); }
   catch(e) { throw new Error("Phản hồi không hợp lệ: " + text.slice(0,150)); }
 }
-
-// POST — dùng cho upload, addFactory, removeFactory
 async function apiPost(payload) {
-  const res = await fetch(API_URL, {
+  var res = await fetch(API_URL, {
     method: "POST",
-    headers: { "Content-Type": "text/plain" }, // avoid preflight
+    headers: { "Content-Type": "text/plain" },
     body: JSON.stringify(payload),
     redirect: "follow"
   });
-  const text = await res.text();
+  var text = await res.text();
   try { return JSON.parse(text); }
   catch(e) { throw new Error("Phản hồi không hợp lệ: " + text.slice(0,120)); }
 }
@@ -273,7 +347,7 @@ async function apiPost(payload) {
 // ── Factories ─────────────────────────────────────────────────────────────────
 async function loadFactories() {
   try {
-    const r = await apiGet({ action: "getFactories" });
+    var r = await apiGet({ action: "getFactories" });
     if (r.ok) {
       factories = r.factories;
       renderFactoryPills();
@@ -286,55 +360,50 @@ async function loadFactories() {
     showToast("Không thể kết nối Apps Script: " + e.message, "error");
   }
 }
-
 function renderFactoryPills() {
-  const el = document.getElementById("factory-pills");
+  var el = document.getElementById("factory-pills");
   if (!factories.length) { el.innerHTML = '<div style="color:#bbb;font-size:13px;">Chưa có nhà máy nào</div>'; return; }
-  el.innerHTML = factories.map(f =>
-    `<div class="pill">🏗 ${esc(f)}<button class="pill-rm" onclick="removeFactory('${esc(f)}')" title="Xóa">×</button></div>`
-  ).join("");
+  el.innerHTML = factories.map(function(f) {
+    return '<div class="pill">🏗 '+esc(f)+'<button class="pill-rm" onclick="removeFactory(\''+esc(f)+'\')" title="Xóa">×</button></div>';
+  }).join("");
 }
-
 function renderFactorySelects() {
-  const opts = factories.map(f => `<option value="${esc(f)}">${esc(f)}</option>`).join("");
-  const upFac = document.getElementById("up-fac");
-  const fFac  = document.getElementById("f-fac");
-  const prev  = upFac.value;
+  var opts = factories.map(function(f){ return '<option value="'+esc(f)+'">'+esc(f)+'</option>'; }).join("");
+  var upFac = document.getElementById("up-fac");
+  var fFac  = document.getElementById("f-fac");
+  var prev  = upFac.value;
   upFac.innerHTML = '<option value="">— Chọn nhà máy —</option>' + opts;
   fFac.innerHTML  = '<option value="">Tất cả</option>' + opts;
   if (prev) upFac.value = prev;
 }
-
 async function addFactory() {
-  const name = document.getElementById("new-fac").value.trim();
+  var name = document.getElementById("new-fac").value.trim();
   if (!name) return;
   try {
-    const r = await apiPost({ action: "addFactory", name });
+    var r = await apiPost({ action: "addFactory", name: name });
     if (r.ok) { document.getElementById("new-fac").value = ""; await loadFactories(); showToast("✅ Đã thêm: " + name); }
     else showToast(r.error || "Lỗi", "error");
   } catch(e) { showToast("Lỗi: " + e.message, "error"); }
 }
-
 async function removeFactory(name) {
-  if (!confirm(`Xóa nhà máy "${name}"?\nẢnh cũ vẫn được giữ lại.`)) return;
+  if (!confirm('Xóa nhà máy "'+name+'"?\nẢnh cũ vẫn được giữ lại.')) return;
   try {
-    const r = await apiPost({ action: "removeFactory", name });
+    var r = await apiPost({ action: "removeFactory", name: name });
     if (r.ok) { await loadFactories(); showToast("Đã xóa: " + name); }
     else showToast(r.error || "Lỗi", "error");
   } catch(e) { showToast("Lỗi: " + e.message, "error"); }
 }
-
 function toggleMgr() {
-  const p = document.getElementById("mgr-panel");
-  const a = document.getElementById("mgr-arrow");
-  const open = p.style.display === "block";
+  var p = document.getElementById("mgr-panel");
+  var a = document.getElementById("mgr-arrow");
+  var open = p.style.display === "block";
   p.style.display = open ? "none" : "block";
   a.textContent = open ? "▼" : "▲";
 }
 
 // ── Tabs ──────────────────────────────────────────────────────────────────────
 function switchTab(t) {
-  ["upload","search"].forEach(function(id) {
+  ["upload","dashboard","search"].forEach(function(id) {
     document.getElementById("tab-"+id).classList.toggle("active", id===t);
     document.getElementById("pane-"+id).style.display = id===t ? "block" : "none";
   });
@@ -351,8 +420,7 @@ function handleFiles(fileList) {
   Array.from(fileList).forEach(function(f) {
     if (!pendingFiles.find(function(p){return p.name===f.name&&p.size===f.size;})) pendingFiles.push(f);
   });
-  renderPreviews();
-  checkBtn();
+  renderPreviews(); checkBtn();
 }
 function renderPreviews() {
   document.getElementById("preview-grid").innerHTML = pendingFiles.map(function(f,i) {
@@ -396,26 +464,198 @@ async function doUpload() {
   checkBtn();
 }
 
+// ── Dashboard ─────────────────────────────────────────────────────────────────
+async function loadDashboard() {
+  var month = document.getElementById("db-month").value;
+  if (!month) { showToast("Chọn tháng trước","error"); return; }
+
+  var el = document.getElementById("db-content");
+  el.innerHTML = '<div class="loading"><div class="spinner"></div>Đang tải thống kê...</div>';
+
+  try {
+    var r = await apiGet({ action: "dashboard", month: month });
+    if (!r.ok) { el.innerHTML = '<div class="empty"><span class="empty-icon">⚠️</span>'+(r.error||"Lỗi")+'</div>'; return; }
+    renderDashboard(r, el);
+  } catch(e) {
+    el.innerHTML = '<div class="empty"><span class="empty-icon">⚠️</span>Lỗi kết nối: '+e.message+'</div>';
+  }
+}
+
+function renderDashboard(d, el) {
+  var monthLabel = fmtMonth(d.month);
+  var byFac  = d.byFactory  || {};
+  var byEng  = d.byEngineer || {};
+  var byDay  = d.byDay      || {};
+  var cross  = d.crossTable || {};
+
+  var facKeys = Object.keys(byFac).sort(function(a,b){ return byFac[b].photos - byFac[a].photos; });
+  var engKeys = Object.keys(byEng).sort(function(a,b){ return byEng[b].photos - byEng[a].photos; });
+  var maxFac  = facKeys.length ? byFac[facKeys[0]].photos : 1;
+  var maxEng  = engKeys.length ? byEng[engKeys[0]].photos : 1;
+
+  // ── 1. KPI row ──────────────────────────────────────────────────────────
+  var totalPhotos   = d.total || 0;
+  var totalSessions = Object.values(byFac).reduce(function(s,v){return s+v.sessions;},0);
+  var activeDays    = Object.keys(byDay).length;
+  var avgPerDay     = activeDays ? (totalPhotos / activeDays).toFixed(1) : 0;
+
+  var html = '';
+  html += '<div class="db-section-title">📅 '+monthLabel+'</div>';
+  html += '<div class="db-top">';
+  html += kpi(totalPhotos, "Tổng ảnh", "");
+  html += kpi(totalSessions, "Lượt upload", "");
+  html += kpi(facKeys.length, "Nhà máy", "");
+  html += kpi(activeDays + " ngày", "Có hoạt động", avgPerDay + " ảnh/ngày tb");
+  html += '</div>';
+
+  // ── 2. Bar chart — theo nhà máy ─────────────────────────────────────────
+  html += '<div class="db-section-title">🏭 Theo nhà máy</div>';
+  html += '<div class="card"><div class="bar-chart">';
+  if (!facKeys.length) {
+    html += '<div class="empty" style="padding:20px;">Không có dữ liệu</div>';
+  } else {
+    var COLORS = ["#1D9E75","#0f6e52","#6dd4a8","#a3e4cb","#d0f4e7"];
+    facKeys.forEach(function(f, i) {
+      var v = byFac[f];
+      var pct = Math.round(v.photos / maxFac * 100);
+      html += '<div class="bar-row">'
+        + '<div class="bar-label" title="'+esc(f)+'">'+esc(f)+'</div>'
+        + '<div class="bar-track"><div class="bar-fill" style="width:'+pct+'%;background:'+COLORS[i%COLORS.length]+'"></div></div>'
+        + '<div class="bar-val">'+v.photos+' <span style="font-size:10px;color:#aaa;font-weight:400;">ảnh</span></div>'
+        + '</div>';
+    });
+  }
+  html += '</div></div>';
+
+  // ── 3. Engineer cards ────────────────────────────────────────────────────
+  html += '<div class="db-section-title">👷 Theo kỹ sư</div>';
+  html += '<div class="card"><div class="eng-cards">';
+  if (!engKeys.length) {
+    html += '<div class="empty" style="padding:20px;">Không có dữ liệu</div>';
+  } else {
+    var ENG_COLORS = ["#1D9E75","#1a56db","#9333ea","#e84545","#e67e22"];
+    engKeys.forEach(function(eng, i) {
+      var v = byEng[eng];
+      var initial = eng && eng !== "—" ? eng.trim()[0].toUpperCase() : "?";
+      var facList = (v.factories || []).join(", ");
+      var barPct  = Math.round(v.photos / maxEng * 100);
+      html += '<div class="eng-card">'
+        + '<div class="eng-avatar" style="background:'+ENG_COLORS[i%ENG_COLORS.length]+'">'+esc(initial)+'</div>'
+        + '<div class="eng-info">'
+        +   '<div class="eng-name">'+esc(eng)+'</div>'
+        +   '<div class="eng-meta">🏭 '+esc(facList)+'</div>'
+        +   '<div style="margin-top:6px;"><div class="bar-track" style="height:6px;"><div class="bar-fill" style="width:'+barPct+'%;background:'+ENG_COLORS[i%ENG_COLORS.length]+'"></div></div></div>'
+        + '</div>'
+        + '<div class="eng-stat"><div class="eng-stat-n">'+v.photos+'</div><div class="eng-stat-l">ảnh</div><div style="font-size:10px;color:#aaa;margin-top:2px;">'+v.sessions+' lượt</div></div>'
+        + '</div>';
+    });
+  }
+  html += '</div></div>';
+
+  // ── 4. Cross table: kỹ sư × nhà máy ────────────────────────────────────
+  html += '<div class="db-section-title">📋 Chi tiết: Kỹ sư × Nhà máy (số ảnh)</div>';
+  html += '<div class="card" style="overflow-x:auto;">';
+  if (!engKeys.length || !facKeys.length) {
+    html += '<div class="empty" style="padding:20px;">Không có dữ liệu</div>';
+  } else {
+    html += '<table class="cross-table">';
+    html += '<thead><tr><th>Kỹ sư</th>';
+    facKeys.forEach(function(f){ html += '<th style="text-align:right;">'+esc(f)+'</th>'; });
+    html += '<th style="text-align:right;color:#1D9E75;">Tổng</th></tr></thead><tbody>';
+    engKeys.forEach(function(eng) {
+      var rowTotal = byEng[eng].photos;
+      html += '<tr><td><strong>'+esc(eng)+'</strong></td>';
+      facKeys.forEach(function(f) {
+        var cnt = (cross[eng] && cross[eng][f]) ? cross[eng][f] : 0;
+        if (cnt === 0) {
+          html += '<td class="zero-cell">—</td>';
+        } else {
+          html += '<td class="num">'+cnt+'</td>';
+        }
+      });
+      html += '<td class="num total-col">'+rowTotal+'</td></tr>';
+    });
+    // Total row
+    html += '<tr style="background:#f9f9f9;"><td><strong style="color:#888;">Tổng</strong></td>';
+    facKeys.forEach(function(f){ html += '<td class="num" style="color:#888;">'+byFac[f].photos+'</td>'; });
+    html += '<td class="num total-col">'+totalPhotos+'</td></tr>';
+    html += '</tbody></table>';
+  }
+  html += '</div>';
+
+  // ── 5. Calendar heatmap ──────────────────────────────────────────────────
+  html += '<div class="db-section-title">📅 Hoạt động theo ngày</div>';
+  html += '<div class="card"><div class="cal-wrap">';
+  html += renderCalendar(d.month, byDay);
+  html += '</div></div>';
+
+  el.innerHTML = html;
+}
+
+function renderCalendar(month, byDay) {
+  var parts = month.split("-");
+  var yr = parseInt(parts[0]); var mo = parseInt(parts[1]);
+  var firstDay = new Date(yr, mo-1, 1).getDay(); // 0=Sun
+  var daysInMonth = new Date(yr, mo, 0).getDate();
+  var todayStr = today();
+  var maxVal = Math.max.apply(null, Object.values(byDay).concat([1]));
+
+  var html = '<div class="cal-grid">';
+  var DAY_LABELS = ["CN","T2","T3","T4","T5","T6","T7"];
+  DAY_LABELS.forEach(function(d){ html += '<div class="cal-day-hdr">'+d+'</div>'; });
+
+  // Empty cells before first day
+  for (var i=0; i<firstDay; i++) html += '<div class="cal-cell empty"></div>';
+
+  for (var d=1; d<=daysInMonth; d++) {
+    var dateStr = yr+"-"+String(mo).padStart(2,"0")+"-"+String(d).padStart(2,"0");
+    var cnt = byDay[dateStr] || 0;
+    var lvl = cnt===0 ? "zero" : cnt <= maxVal*0.25 ? "lvl1" : cnt <= maxVal*0.5 ? "lvl2" : cnt <= maxVal*0.75 ? "lvl3" : "lvl4";
+    var isToday = dateStr === todayStr ? " today" : "";
+    var title = cnt ? cnt+" ảnh" : "Không có";
+    html += '<div class="cal-cell '+lvl+isToday+'" title="'+dateStr+': '+title+'">'
+          + '<span class="cal-num">'+d+'</span>'
+          + '</div>';
+  }
+  html += '</div>';
+
+  // Legend
+  html += '<div style="display:flex;gap:8px;align-items:center;margin-top:12px;font-size:11px;color:#888;">';
+  html += '<span>Ít</span>';
+  ["lvl1","lvl2","lvl3","lvl4"].forEach(function(l){
+    html += '<div style="width:14px;height:14px;border-radius:3px;" class="cal-cell '+l+'" title=""></div>';
+  });
+  html += '<span>Nhiều</span>';
+  html += '<span style="margin-left:auto;color:#aaa;">Hover để xem số ảnh</span>';
+  html += '</div>';
+
+  return html;
+}
+
+function kpi(val, label, sub) {
+  return '<div class="db-kpi"><div class="db-kpi-n">'+val+'</div><div class="db-kpi-l">'+label+'</div>'+(sub?'<div class="db-kpi-sub">'+sub+'</div>':'')+'</div>';
+}
+
 // ── Search ────────────────────────────────────────────────────────────────────
 async function doSearch() {
-  var factory = document.getElementById("f-fac").value;
-  var date    = document.getElementById("f-date").value;
-  var gallery = document.getElementById("gallery");
+  var factory  = document.getElementById("f-fac").value;
+  var dateFrom = document.getElementById("f-date-from").value;
+  var dateTo   = document.getElementById("f-date-to").value;
+  var gallery  = document.getElementById("gallery");
   gallery.innerHTML = '<div class="loading"><div class="spinner"></div>Đang tải dữ liệu...</div>';
 
   try {
     var params = { action: "search" };
-    if (factory) params.factory = factory;
-    if (date)    params.date    = date;
+    if (factory)  params.factory  = factory;
+    if (dateFrom) params.dateFrom = dateFrom;
+    if (dateTo)   params.dateTo   = dateTo;
     var r = await apiGet(params);
-
-    if (!r.ok) { gallery.innerHTML = '<div class="empty"><span class="empty-icon">⚠️</span>' + (r.error||"Lỗi không xác định") + '</div>'; return; }
-
+    if (!r.ok) { gallery.innerHTML = '<div class="empty"><span class="empty-icon">⚠️</span>'+(r.error||"Lỗi không xác định")+'</div>'; return; }
     searchResults = r.sessions || [];
     updateStats(searchResults);
     renderGallery(searchResults);
   } catch(e) {
-    gallery.innerHTML = '<div class="empty"><span class="empty-icon">⚠️</span>Lỗi kết nối: ' + e.message + '</div>';
+    gallery.innerHTML = '<div class="empty"><span class="empty-icon">⚠️</span>Lỗi kết nối: '+e.message+'</div>';
   }
 }
 
@@ -436,7 +676,7 @@ function renderGallery(sessions) {
     var dl = daysLeft(s.uploadedAt);
     var bc = dl <= 7 ? "badge-red" : "badge-green";
     var fd = fmtDate(s.date);
-    var items = s.photos.map(function(p, pi) {
+    var items = s.photos.map(function(p) {
       var info = encodeURIComponent(JSON.stringify({ pName: p.name, pData: p.data, factory: s.factory, date: fd, eng: s.engineer }));
       var cap  = p.name.length > 18 ? p.name.slice(0,15)+"…" : p.name;
       return '<div class="g-item" onclick=\'openLB("'+info+'")\'><img src="'+p.data+'" alt="'+esc(p.name)+'" loading="lazy" /><div class="g-cap">'+esc(cap)+'</div></div>';
@@ -452,9 +692,10 @@ function renderGallery(sessions) {
 }
 
 function clearFilters() {
-  document.getElementById("f-fac").value  = "";
-  document.getElementById("f-date").value = "";
-  document.getElementById("gallery").innerHTML = '<div class="empty"><span class="empty-icon">🔍</span>Bấm <strong>Tìm</strong> để xem ảnh</div>';
+  document.getElementById("f-fac").value       = "";
+  document.getElementById("f-date-from").value = "";
+  document.getElementById("f-date-to").value   = "";
+  document.getElementById("gallery").innerHTML  = '<div class="empty"><span class="empty-icon">🔍</span>Bấm <strong>Tìm</strong> để xem ảnh</div>';
   updateStats([]);
 }
 
@@ -488,8 +729,13 @@ function exportCSV() {
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-function today() { return new Date().toISOString().slice(0,10); }
+function today()    { return new Date().toISOString().slice(0,10); }
 function fmtDate(iso) { return (iso||"").split("-").reverse().join("/"); }
+function fmtMonth(m) {
+  if (!m) return "";
+  var p = m.split("-");
+  return "Tháng " + parseInt(p[1]) + "/" + p[0];
+}
 function daysLeft(at) { return Math.ceil((new Date(at).getTime() + RETENTION*86400000 - Date.now()) / 86400000); }
 function esc(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 function toB64(file) {
