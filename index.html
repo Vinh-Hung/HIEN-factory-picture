@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quản lý ảnh kiểm tra nhà máy</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f4f4f4; color: #111; min-height: 100vh; }
+.shell { max-width: 800px; margin: 0 auto; padding: 24px 16px 80px; }
+
+input, select { width: 100%; padding: 9px 11px; font-size: 14px; border: 1px solid #ddd; border-radius: 8px; background: #fff; color: #111; outline: none; font-family: inherit; transition: border-color 0.15s; }
+input:focus, select:focus { border-color: #1D9E75; }
+button { font-family: inherit; cursor: pointer; }
+
+.card  { background: #fff; border: 1px solid #e8e8e8; border-radius: 12px; padding: 20px; margin-bottom: 12px; }
+.muted { background: #f9f9f9; border: 1px solid #eee; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+
+.tabs { display: flex; border-bottom: 1px solid #e8e8e8; margin-bottom: 24px; }
+.tab  { padding: 10px 20px; font-size: 14px; font-weight: 500; color: #888; background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -1px; cursor: pointer; }
+.tab.active { color: #111; border-bottom-color: #111; }
+
+.btn-primary { background: #111; color: #fff; border: none; border-radius: 8px; padding: 11px 20px; font-size: 14px; font-weight: 500; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
+.btn-primary:not(:disabled):hover { opacity: 0.85; }
+.btn-sm { background: none; border: 1px solid #ddd; border-radius: 8px; padding: 7px 13px; font-size: 13px; color: #111; display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+.btn-sm:hover { background: #f5f5f5; }
+
+.dropzone { border: 2px dashed #ddd; border-radius: 12px; padding: 28px; text-align: center; cursor: pointer; color: #999; font-size: 14px; transition: background 0.15s, border-color 0.15s; }
+.dropzone:hover, .dropzone.over { background: #f0faf6; border-color: #1D9E75; }
+.drop-icon { font-size: 36px; display: block; margin-bottom: 8px; }
+.drop-hint { font-size: 12px; color: #bbb; margin-top: 4px; }
+
+.prev-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px,1fr)); gap: 8px; margin-top: 12px; }
+.prev-item { position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden; border: 1px solid #e8e8e8; }
+.prev-item img { width: 100%; height: 100%; object-fit: cover; }
+.prev-rm { position: absolute; top: 3px; right: 3px; background: rgba(0,0,0,.65); color: #fff; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; }
+
+.stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 20px; }
+.stat { background: #f5f5f5; border-radius: 8px; padding: 14px 16px; }
+.stat-n { font-size: 24px; font-weight: 600; }
+.stat-l { font-size: 12px; color: #888; margin-top: 2px; }
+
+.filter-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; align-items: end; margin-bottom: 10px; }
+.action-row { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+.lbl { font-size: 12px; color: #666; display: block; margin-bottom: 6px; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+
+.gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px,1fr)); gap: 8px; }
+.g-item { position: relative; border-radius: 8px; overflow: hidden; border: 1px solid #e8e8e8; cursor: pointer; }
+.g-item img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
+.g-cap { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,.52); padding: 3px 6px; font-size: 10px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.g-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 6px; }
+.g-title { font-size: 13px; font-weight: 500; }
+.g-sub { font-size: 12px; color: #888; font-weight: 400; margin-left: 4px; }
+.badges { display: flex; gap: 6px; align-items: center; }
+.badge { font-size: 11px; padding: 2px 8px; border-radius: 99px; font-weight: 500; }
+.badge-gray { background: #f0f0f0; color: #666; }
+.badge-green { background: #E1F5EE; color: #0F6E56; }
+.badge-red { background: #FCEBEB; color: #A32D2D; }
+
+.lightbox { position: fixed; inset: 0; background: rgba(0,0,0,.88); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 999; gap: 12px; }
+.lightbox.open { display: flex; }
+.lightbox img { max-width: 90vw; max-height: 80vh; object-fit: contain; border-radius: 8px; }
+.lb-info { color: #fff; font-size: 12px; background: rgba(0,0,0,.5); padding: 6px 14px; border-radius: 99px; text-align: center; }
+.lb-close { position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,.15); border: none; color: #fff; width: 36px; height: 36px; border-radius: 50%; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+.toast { position: fixed; bottom: 20px; right: 20px; background: #fff; border: 1px solid #e8e8e8; border-radius: 12px; padding: 11px 16px; font-size: 13px; max-width: 300px; z-index: 9999; box-shadow: 0 4px 16px rgba(0,0,0,.1); transition: transform .2s, opacity .2s; }
+.toast.hide { transform: translateY(60px); opacity: 0; pointer-events: none; }
+.toast.success { border-left: 3px solid #1D9E75; }
+.toast.error   { border-left: 3px solid #E24B4A; }
+
+.pill { display: flex; align-items: center; gap: 6px; padding: 5px 10px; background: #fff; border: 1px solid #e8e8e8; border-radius: 8px; font-size: 13px; }
+.pill-rm { background: none; border: none; color: #bbb; font-size: 16px; cursor: pointer; line-height: 1; padding: 0 2px; }
+.pill-rm:hover { color: #E24B4A; }
+.pills { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.pills-input { display: flex; gap: 8px; }
+
+.loading { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60vh; gap: 14px; color: #888; font-size: 14px; }
+.spinner { width: 28px; height: 28px; border: 2px solid #eee; border-top-color: #1D9E75; border-radius: 50%; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.empty { text-align: center; padding: 48px 16px; color: #bbb; font-size: 14px; }
+.empty-icon { font-size: 40px; display: block; margin-bottom: 10px; }
+
+.setup-card { background: #fff; border: 1px solid #e8e8e8; border-radius: 12px; padding: 24px; max-width: 520px; margin: 80px auto; }
+.setup-title { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
+.setup-sub { font-size: 13px; color: #888; margin-bottom: 20px; line-height: 1.6; }
+.step { display: flex; gap: 12px; margin-bottom: 14px; font-size: 13px; line-height: 1.6; }
+.step-num { flex-shrink: 0; width: 22px; height: 22px; background: #111; color: #fff; border-radius: 50%; font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+code { background: #f5f5f5; padding: 1px 5px; border-radius: 4px; font-size: 12px; font-family: monospace; }
+a { color: #1D9E75; }
+
+.header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+.header-title { font-size: 20px; font-weight: 600; }
+.header-sub { font-size: 12px; color: #888; margin-top: 3px; }
+
+@media (max-width: 480px) {
+  .row2 { grid-template-columns: 1fr; }
+  .filter-row { grid-template-columns: 1fr; }
+  .filter-row > *:last-child { width: 100%; }
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<!-- SETUP SCREEN (hiện khi chưa có API URL) -->
+<div id="setup-screen" class="shell" style="display:none;">
+  <div class="setup-card">
+    <div class="setup-title">⚙️ Cài đặt lần đầu</div>
+    <div class="setup-sub">Nhập URL của Google Apps Script Web App để kết nối với Google Sheets của bạn.</div>
+
+    <div class="step"><div class="step-num">1</div><div>Mở <a href="https://script.google.com" target="_blank">script.google.com</a> → New project</div></div>
+    <div class="step"><div class="step-num">2</div><div>Dán nội dung file <code>Code.gs</code> vào, chọn đúng Spreadsheet</div></div>
+    <div class="step"><div class="step-num">3</div><div>Bấm <strong>Deploy → New deployment → Web App</strong><br>Execute as: <strong>Me</strong> · Who has access: <strong>Anyone</strong></div></div>
+    <div class="step"><div class="step-num">4</div><div>Copy URL Web App và dán vào ô bên dưới</div></div>
+
+    <label class="lbl" style="margin-top:16px;">URL Google Apps Script Web App</label>
+    <input id="url-input" type="text" placeholder="https://script.google.com/macros/s/.../exec" style="margin-bottom:10px;" />
+    <button class="btn-primary" onclick="saveUrl()">Kết nối và bắt đầu</button>
+    <p style="font-size:11px;color:#bbb;margin-top:10px;text-align:center;">URL được lưu trong trình duyệt, không gửi đi đâu khác.</p>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" class="shell" style="display:none;">
+  <div class="header">
+    <div>
+      <div class="header-title">📷 Quản lý ảnh kiểm tra nhà máy</div>
+      <div class="header-sub" id="header-sub">Google Sheets · Tự xóa sau 30 ngày</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn-sm" onclick="toggleMgr()">🏭 Nhà máy <span id="mgr-arrow">▼</span></button>
+      <button class="btn-sm" onclick="resetUrl()" title="Đổi kết nối">⚙️</button>
+    </div>
+  </div>
+
+  <!-- Factory manager -->
+  <div id="mgr-panel" class="muted" style="display:none;">
+    <div style="font-size:11px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;">Danh sách nhà máy</div>
+    <div class="pills" id="factory-pills"></div>
+    <div class="pills-input">
+      <input id="new-fac" placeholder="Tên nhà máy mới..." onkeydown="if(event.key==='Enter')addFactory()" />
+      <button class="btn-sm" onclick="addFactory()">+ Thêm</button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" id="tab-upload" onclick="switchTab('upload')">⬆ Upload ảnh</button>
+    <button class="tab" id="tab-search" onclick="switchTab('search')">🔍 Tìm kiếm</button>
+  </div>
+
+  <!-- Upload -->
+  <div id="pane-upload">
+    <div class="card">
+      <div class="row2">
+        <div>
+          <label class="lbl">Nhà máy *</label>
+          <select id="up-fac"><option value="">— Chọn nhà máy —</option></select>
+        </div>
+        <div>
+          <label class="lbl">Ngày kiểm tra *</label>
+          <input type="date" id="up-date" />
+        </div>
+      </div>
+      <div style="margin-bottom:12px;">
+        <label class="lbl">Kỹ sư phụ trách</label>
+        <input id="up-eng" placeholder="Tên kỹ sư..." />
+      </div>
+      <div class="dropzone" id="dropzone" onclick="document.getElementById('file-input').click()"
+        ondragover="event.preventDefault();this.classList.add('over')"
+        ondragleave="this.classList.remove('over')"
+        ondrop="event.preventDefault();this.classList.remove('over');handleFiles(event.dataTransfer.files)">
+        <span class="drop-icon">📷</span>
+        Nhấn để chọn ảnh hoặc kéo thả vào đây
+        <div class="drop-hint">JPG, PNG — nhiều ảnh cùng lúc</div>
+      </div>
+      <input type="file" id="file-input" accept="image/*" multiple style="display:none" onchange="handleFiles(this.files)" />
+      <div class="prev-grid" id="preview-grid"></div>
+    </div>
+    <button class="btn-primary" id="btn-upload" onclick="doUpload()" disabled>
+      ☁ Lưu ảnh lên Google Sheets
+    </button>
+  </div>
+
+  <!-- Search -->
+  <div id="pane-search" style="display:none;">
+    <div class="stats">
+      <div class="stat"><div class="stat-n" id="st-photos">—</div><div class="stat-l">Tổng ảnh</div></div>
+      <div class="stat"><div class="stat-n" id="st-sessions">—</div><div class="stat-l">Lượt upload</div></div>
+      <div class="stat"><div class="stat-n" id="st-factories">—</div><div class="stat-l">Nhà máy</div></div>
+    </div>
+    <div class="filter-row">
+      <div>
+        <label class="lbl">Nhà máy</label>
+        <select id="f-fac"><option value="">Tất cả</option></select>
+      </div>
+      <div>
+        <label class="lbl">Ngày</label>
+        <input type="date" id="f-date" />
+      </div>
+      <button class="btn-sm" onclick="doSearch()" style="padding:9px 16px;">🔍 Tìm</button>
+    </div>
+    <div class="action-row">
+      <button class="btn-sm" onclick="exportCSV()">📊 Xuất CSV</button>
+      <button class="btn-sm" onclick="clearFilters()">✕ Xóa bộ lọc</button>
+    </div>
+    <div id="gallery"></div>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLB()">
+  <button class="lb-close" onclick="closeLB()">×</button>
+  <img id="lb-img" src="" alt="" onclick="event.stopPropagation()" />
+  <div class="lb-info" id="lb-info"></div>
+</div>
+
+<!-- Toast -->
+<div class="toast hide" id="toast"></div>
+
+<script>
+// ── Config ────────────────────────────────────────────────────────────────────
+const LS_URL_KEY = "factory_app_url";
+const RETENTION  = 30;
+let API_URL      = localStorage.getItem(LS_URL_KEY) || "";
+let factories    = [];
+let pendingFiles = [];
+let searchResults = [];
+let toastTimer;
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+window.onload = () => {
+  if (!API_URL) { showSetup(); return; }
+  showApp();
+  loadFactories().then(() => {
+    renderStats();
+  });
+  document.getElementById("up-date").value = today();
+};
+
+function showSetup() {
+  document.getElementById("setup-screen").style.display = "block";
+  document.getElementById("app").style.display = "none";
+}
+function showApp() {
+  document.getElementById("setup-screen").style.display = "none";
+  document.getElementById("app").style.display = "block";
+}
+function saveUrl() {
+  const url = document.getElementById("url-input").value.trim();
+  if (!url) return alert("Vui lòng nhập URL");
+  localStorage.setItem(LS_URL_KEY, url);
+  API_URL = url;
+  showApp();
+  loadFactories();
+}
+function resetUrl() {
+  if (!confirm("Đổi kết nối Apps Script?")) return;
+  localStorage.removeItem(LS_URL_KEY);
+  location.reload();
+}
+
+// ── API call ──────────────────────────────────────────────────────────────────
+async function api(payload) {
+  const res = await fetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify(payload),
+    // no-cors not needed since Apps Script handles CORS
+  });
+  const text = await res.text();
+  try { return JSON.parse(text); }
+  catch { throw new Error("Phản hồi không hợp lệ: " + text.slice(0, 100)); }
+}
+
+// ── Factories ─────────────────────────────────────────────────────────────────
+async function loadFactories() {
+  try {
+    const r = await api({ action: "getFactories" });
+    if (r.ok) { factories = r.factories; renderFactories(); }
+  } catch(e) { showToast("Lỗi tải nhà máy: " + e.message, "error"); }
+}
+
+function renderFactories() {
+  // pills in manager
+  const pillsEl = document.getElementById("factory-pills");
+  pillsEl.innerHTML = factories.map(f =>
+    `<div class="pill">🏗 ${f}<button class="pill-rm" onclick="removeFactory('${f}')" title="Xóa">×</button></div>`
+  ).join("");
+
+  // selects
+  const upFac = document.getElementById("up-fac");
+  const fFac  = document.getElementById("f-fac");
+  const upVal = upFac.value;
+  upFac.innerHTML = `<option value="">— Chọn nhà máy —</option>` + factories.map(f=>`<option>${f}</option>`).join("");
+  fFac.innerHTML  = `<option value="">Tất cả</option>` + factories.map(f=>`<option>${f}</option>`).join("");
+  if (upVal) upFac.value = upVal;
+  document.getElementById("st-factories").textContent = factories.length;
+}
+
+async function addFactory() {
+  const name = document.getElementById("new-fac").value.trim();
+  if (!name) return;
+  try {
+    const r = await api({ action: "addFactory", name });
+    if (r.ok) { document.getElementById("new-fac").value=""; await loadFactories(); showToast("Đã thêm: " + name); }
+    else showToast(r.error || "Lỗi", "error");
+  } catch(e) { showToast("Lỗi: "+e.message,"error"); }
+}
+
+async function removeFactory(name) {
+  if (!confirm(`Xóa nhà máy "${name}"?\nẢnh cũ vẫn được giữ lại.`)) return;
+  try {
+    const r = await api({ action: "removeFactory", name });
+    if (r.ok) { await loadFactories(); showToast("Đã xóa: " + name); }
+  } catch(e) { showToast("Lỗi: "+e.message,"error"); }
+}
+
+// ── Factory panel toggle ──────────────────────────────────────────────────────
+function toggleMgr() {
+  const p = document.getElementById("mgr-panel");
+  const a = document.getElementById("mgr-arrow");
+  const open = p.style.display === "block";
+  p.style.display = open ? "none" : "block";
+  a.textContent = open ? "▼" : "▲";
+}
+
+// ── Tabs ──────────────────────────────────────────────────────────────────────
+function switchTab(t) {
+  ["upload","search"].forEach(id => {
+    document.getElementById("tab-"+id).classList.toggle("active", id===t);
+    document.getElementById("pane-"+id).style.display = id===t ? "block" : "none";
+  });
+  if (t==="search") doSearch();
+}
+
+// ── File handling ─────────────────────────────────────────────────────────────
+function handleFiles(fileList) {
+  Array.from(fileList).forEach(f => {
+    if (!pendingFiles.find(p=>p.name===f.name&&p.size===f.size)) pendingFiles.push(f);
+  });
+  renderPreviews();
+  checkUploadBtn();
+}
+
+function renderPreviews() {
+  const grid = document.getElementById("preview-grid");
+  grid.innerHTML = pendingFiles.map((f,i) => {
+    const url = URL.createObjectURL(f);
+    return `<div class="prev-item"><img src="${url}" /><button class="prev-rm" onclick="removeFile(${i})">×</button></div>`;
+  }).join("");
+}
+
+function removeFile(i) { pendingFiles.splice(i,1); renderPreviews(); checkUploadBtn(); }
+
+function checkUploadBtn() {
+  const ok = document.getElementById("up-fac").value && document.getElementById("up-date").value && pendingFiles.length > 0;
+  document.getElementById("btn-upload").disabled = !ok;
+}
+document.addEventListener("change", e => { if(e.target.id==="up-fac"||e.target.id==="up-date") checkUploadBtn(); });
+
+// ── Upload ────────────────────────────────────────────────────────────────────
+async function doUpload() {
+  const factory  = document.getElementById("up-fac").value;
+  const date     = document.getElementById("up-date").value;
+  const engineer = document.getElementById("up-eng").value || "—";
+  if (!factory||!date||pendingFiles.length===0) return;
+
+  const btn = document.getElementById("btn-upload");
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner" style="width:16px;height:16px;border-width:2px;"></span> Đang lưu...';
+
+  try {
+    const photos = await Promise.all(pendingFiles.map(async f => ({
+      name: f.name, size: f.size, data: await toB64(f)
+    })));
+
+    const r = await api({
+      action: "upload",
+      sessionId: Date.now().toString(),
+      factory, date, engineer, photos
+    });
+
+    if (r.ok) {
+      pendingFiles = [];
+      renderPreviews();
+      document.getElementById("up-fac").value = "";
+      document.getElementById("up-eng").value = "";
+      document.getElementById("up-date").value = today();
+      showToast(`✅ Đã lưu ${r.count} ảnh — ${factory} (${date})`);
+    } else showToast(r.error||"Lỗi không xác định","error");
+  } catch(e) { showToast("Lỗi: "+e.message,"error"); }
+
+  btn.innerHTML = "☁ Lưu ảnh lên Google Sheets";
+  checkUploadBtn();
+}
+
+// ── Search ────────────────────────────────────────────────────────────────────
+async function doSearch() {
+  const factory = document.getElementById("f-fac").value;
+  const date    = document.getElementById("f-date").value;
+  const gallery = document.getElementById("gallery");
+  gallery.innerHTML = `<div class="loading"><div class="spinner"></div>Đang tải...</div>`;
+
+  try {
+    const r = await api({ action: "search", factory, date });
+    if (!r.ok) { gallery.innerHTML=`<div class="empty"><span class="empty-icon">⚠️</span>${r.error}</div>`; return; }
+    searchResults = r.sessions;
+    renderStats(r.sessions);
+    renderGallery(r.sessions);
+  } catch(e) { gallery.innerHTML=`<div class="empty"><span class="empty-icon">⚠️</span>Lỗi: ${e.message}</div>`; }
+}
+
+function renderStats(sessions) {
+  if (!sessions) return;
+  const total = sessions.reduce((s,r)=>s+r.photos.length,0);
+  document.getElementById("st-photos").textContent   = total;
+  document.getElementById("st-sessions").textContent = sessions.length;
+}
+
+function renderGallery(sessions) {
+  const gallery = document.getElementById("gallery");
+  if (!sessions||sessions.length===0) {
+    gallery.innerHTML=`<div class="empty"><span class="empty-icon">🖼</span>Không tìm thấy ảnh nào</div>`;
+    return;
+  }
+  gallery.innerHTML = sessions.map(s => {
+    const dl = daysLeft(s.uploadedAt);
+    const badgeClass = dl <= 7 ? "badge-red" : "badge-green";
+    const fmtD = fmtDate(s.date);
+    const items = s.photos.map((p,pi) =>
+      `<div class="g-item" onclick="openLB('${encodeURIComponent(JSON.stringify({p,s}))}')">
+        <img src="${p.data}" alt="${p.name}" loading="lazy" />
+        <div class="g-cap">${p.name.length>18?p.name.slice(0,15)+"…":p.name}</div>
+      </div>`
+    ).join("");
+    return `<div style="margin-bottom:2rem;">
+      <div class="g-header">
+        <div class="g-title">🏭 ${s.factory}<span class="g-sub">— ${fmtD} · ${s.engineer}</span></div>
+        <div class="badges">
+          <span class="badge badge-gray">${s.photos.length} ảnh</span>
+          <span class="badge ${badgeClass}">${dl}d</span>
+        </div>
+      </div>
+      <div class="gallery-grid">${items}</div>
+    </div>`;
+  }).join("");
+}
+
+function clearFilters() {
+  document.getElementById("f-fac").value="";
+  document.getElementById("f-date").value="";
+  doSearch();
+}
+
+// ── Lightbox ──────────────────────────────────────────────────────────────────
+function openLB(encoded) {
+  try {
+    const { p, s } = JSON.parse(decodeURIComponent(encoded));
+    document.getElementById("lb-img").src = p.data;
+    document.getElementById("lb-info").textContent = `${s.factory} · ${fmtDate(s.date)} · ${s.engineer} · ${p.name}`;
+    document.getElementById("lightbox").classList.add("open");
+  } catch(e) {}
+}
+function closeLB() { document.getElementById("lightbox").classList.remove("open"); }
+
+// ── CSV ───────────────────────────────────────────────────────────────────────
+function exportCSV() {
+  if (!searchResults.length) { showToast("Không có dữ liệu để xuất","error"); return; }
+  const rows = [["STT","Nhà máy","Ngày","Kỹ sư","File","KB","Upload lúc"]];
+  let i=1;
+  searchResults.forEach(s => s.photos.forEach(p => {
+    rows.push([i++,s.factory,s.date,s.engineer,p.name,Math.round(p.size/1024),new Date(s.uploadedAt).toLocaleString("vi-VN")]);
+  }));
+  const csv = rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(",")).join("\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"}));
+  a.download = `kiem_tra_${today()}.csv`;
+  a.click();
+  showToast("✅ Đã xuất CSV");
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function today() { return new Date().toISOString().slice(0,10); }
+function fmtDate(iso) { return iso.split("-").reverse().join("/"); }
+function daysLeft(at) { return Math.ceil((new Date(at).getTime()+RETENTION*86400000-Date.now())/86400000); }
+function toB64(file) {
+  return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(file); });
+}
+
+function showToast(msg, type="success") {
+  clearTimeout(toastTimer);
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = `toast ${type}`;
+  toastTimer = setTimeout(()=>t.className="toast hide", 3200);
+}
+</script>
+</body>
+</html>
