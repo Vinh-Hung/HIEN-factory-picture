@@ -5,198 +5,263 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Quản lý ảnh kiểm tra nhà máy</title>
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f4f4f4; color: #111; min-height: 100vh; }
-.shell { max-width: 860px; margin: 0 auto; padding: 24px 16px 80px; }
-input, select { width: 100%; padding: 9px 11px; font-size: 14px; border: 1px solid #ddd; border-radius: 8px; background: #fff; color: #111; outline: none; font-family: inherit; transition: border-color 0.15s; }
-input:focus, select:focus { border-color: #1D9E75; }
-button { font-family: inherit; cursor: pointer; }
-.card  { background: #fff; border: 1px solid #e8e8e8; border-radius: 12px; padding: 20px; margin-bottom: 12px; }
-.muted { background: #f9f9f9; border: 1px solid #eee; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
-.tabs { display: flex; border-bottom: 1px solid #e8e8e8; margin-bottom: 24px; overflow-x: auto; }
-.tab  { padding: 10px 18px; font-size: 14px; font-weight: 500; color: #888; background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -1px; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
-.tab.active { color: #111; border-bottom-color: #111; }
-.btn-primary { background: #111; color: #fff; border: none; border-radius: 8px; padding: 11px 20px; font-size: 14px; font-weight: 500; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; }
-.btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
-.btn-primary:not(:disabled):hover { opacity: 0.85; }
-.btn-sm { background: none; border: 1px solid #ddd; border-radius: 8px; padding: 7px 13px; font-size: 13px; color: #111; display: flex; align-items: center; gap: 5px; white-space: nowrap; }
-.btn-sm:hover { background: #f5f5f5; }
-.dropzone { border: 2px dashed #ddd; border-radius: 12px; padding: 28px; text-align: center; cursor: pointer; color: #999; font-size: 14px; transition: background 0.15s, border-color 0.15s; }
-.dropzone:hover, .dropzone.over { background: #f0faf6; border-color: #1D9E75; }
-.drop-icon { font-size: 36px; display: block; margin-bottom: 8px; }
-.drop-hint { font-size: 12px; color: #bbb; margin-top: 4px; }
-.prev-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px,1fr)); gap: 8px; margin-top: 12px; }
-.prev-item { position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden; border: 1px solid #e8e8e8; }
-.prev-item img { width: 100%; height: 100%; object-fit: cover; }
-.prev-rm { position: absolute; top: 3px; right: 3px; background: rgba(0,0,0,.65); color: #fff; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; }
-.stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 20px; }
-.stat { background: #f5f5f5; border-radius: 8px; padding: 14px 16px; }
-.stat-n { font-size: 24px; font-weight: 600; }
-.stat-l { font-size: 12px; color: #888; margin-top: 2px; }
-.filter-row { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; align-items: end; margin-bottom: 10px; }
-.action-row { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-.lbl { font-size: 12px; color: #666; display: block; margin-bottom: 6px; }
-.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-.gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px,1fr)); gap: 8px; }
-.g-item { position: relative; border-radius: 8px; overflow: hidden; border: 1px solid #e8e8e8; cursor: pointer; }
-.g-item img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
-.g-cap { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,.52); padding: 3px 6px; font-size: 10px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.g-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 6px; }
-.g-title { font-size: 13px; font-weight: 500; }
-.g-sub { font-size: 12px; color: #888; font-weight: 400; margin-left: 4px; }
-.badges { display: flex; gap: 6px; align-items: center; }
-.badge { font-size: 11px; padding: 2px 8px; border-radius: 99px; font-weight: 500; }
-.badge-gray  { background: #f0f0f0; color: #666; }
-.badge-green { background: #E1F5EE; color: #0F6E56; }
-.badge-red   { background: #FCEBEB; color: #A32D2D; }
-.badge-blue  { background: #E8F0FE; color: #1a56db; }
-.lightbox { position: fixed; inset: 0; background: rgba(0,0,0,.88); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 999; gap: 12px; }
-.lightbox.open { display: flex; }
-.lightbox img { max-width: 90vw; max-height: 80vh; object-fit: contain; border-radius: 8px; }
-.lb-info { color: #fff; font-size: 12px; background: rgba(0,0,0,.5); padding: 6px 14px; border-radius: 99px; text-align: center; max-width: 90vw; }
-.lb-close { position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,.15); border: none; color: #fff; width: 36px; height: 36px; border-radius: 50%; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-.toast { position: fixed; bottom: 20px; right: 20px; background: #fff; border: 1px solid #e8e8e8; border-radius: 12px; padding: 11px 16px; font-size: 13px; max-width: 320px; z-index: 9999; box-shadow: 0 4px 16px rgba(0,0,0,.1); transition: transform .2s, opacity .2s; }
-.toast.hide { transform: translateY(60px); opacity: 0; pointer-events: none; }
-.toast.success { border-left: 3px solid #1D9E75; }
-.toast.error   { border-left: 3px solid #E24B4A; }
-.pill { display: flex; align-items: center; gap: 6px; padding: 5px 10px; background: #fff; border: 1px solid #e8e8e8; border-radius: 8px; font-size: 13px; }
-.pill-rm { background: none; border: none; color: #bbb; font-size: 18px; cursor: pointer; line-height: 1; padding: 0 2px; }
-.pill-rm:hover { color: #E24B4A; }
-.pills { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; min-height: 32px; }
-.pills-input { display: flex; gap: 8px; }
-.loading { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px; gap: 14px; color: #888; font-size: 14px; }
-.spinner { width: 28px; height: 28px; border: 2px solid #eee; border-top-color: #1D9E75; border-radius: 50%; animation: spin .8s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.empty { text-align: center; padding: 48px 16px; color: #bbb; font-size: 14px; }
-.empty-icon { font-size: 40px; display: block; margin-bottom: 10px; }
-.setup-wrap { max-width: 520px; margin: 60px auto; }
-.setup-card { background: #fff; border: 1px solid #e8e8e8; border-radius: 12px; padding: 28px; }
-.setup-title { font-size: 20px; font-weight: 600; margin-bottom: 6px; }
-.setup-sub { font-size: 13px; color: #888; margin-bottom: 24px; line-height: 1.7; }
-.step { display: flex; gap: 12px; margin-bottom: 14px; font-size: 13px; line-height: 1.7; color: #444; }
-.step-num { flex-shrink: 0; width: 22px; height: 22px; background: #111; color: #fff; border-radius: 50%; font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; margin-top: 2px; }
-code { background: #f5f5f5; padding: 1px 6px; border-radius: 4px; font-size: 12px; font-family: monospace; }
-a { color: #1D9E75; }
-.header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
-.header-title { font-size: 20px; font-weight: 600; }
-.header-sub { font-size: 12px; color: #888; margin-top: 3px; }
-.header-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f4f4f4;color:#111;min-height:100vh}
+.shell{max-width:880px;margin:0 auto;padding:24px 16px 80px}
+input,select,textarea{width:100%;padding:9px 11px;font-size:14px;border:1px solid #ddd;border-radius:8px;background:#fff;color:#111;outline:none;font-family:inherit;transition:border-color .15s}
+input:focus,select:focus,textarea:focus{border-color:#1D9E75}
+textarea{resize:vertical;min-height:72px}
+button{font-family:inherit;cursor:pointer}
+.card{background:#fff;border:1px solid #e8e8e8;border-radius:12px;padding:20px;margin-bottom:12px}
+.muted{background:#f9f9f9;border:1px solid #eee;border-radius:12px;padding:16px;margin-bottom:16px}
+.tabs{display:flex;border-bottom:1px solid #e8e8e8;margin-bottom:24px;overflow-x:auto}
+.tab{padding:10px 16px;font-size:14px;font-weight:500;color:#888;background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.tab.active{color:#111;border-bottom-color:#111}
+.btn-primary{background:#111;color:#fff;border:none;border-radius:8px;padding:11px 20px;font-size:14px;font-weight:500;width:100%;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-primary:disabled{opacity:.35;cursor:not-allowed}
+.btn-primary:not(:disabled):hover{opacity:.85}
+.btn-sm{background:none;border:1px solid #ddd;border-radius:8px;padding:7px 13px;font-size:13px;color:#111;display:flex;align-items:center;gap:5px;white-space:nowrap}
+.btn-sm:hover{background:#f5f5f5}
+.btn-danger{background:none;border:1px solid #fca5a5;border-radius:8px;padding:5px 10px;font-size:12px;color:#b91c1c;display:flex;align-items:center;gap:4px}
+.btn-danger:hover{background:#fef2f2}
+.dropzone{border:2px dashed #ddd;border-radius:12px;padding:24px;text-align:center;cursor:pointer;color:#999;font-size:14px;transition:background .15s,border-color .15s}
+.dropzone:hover,.dropzone.over{background:#f0faf6;border-color:#1D9E75}
+.drop-icon{font-size:32px;display:block;margin-bottom:6px}
+.drop-hint{font-size:12px;color:#bbb;margin-top:4px}
+.prev-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;margin-top:12px}
+.prev-item{position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;border:1px solid #e8e8e8}
+.prev-item img{width:100%;height:100%;object-fit:cover}
+.prev-rm{position:absolute;top:3px;right:3px;background:rgba(0,0,0,.65);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+.stat{background:#f5f5f5;border-radius:8px;padding:14px 16px}
+.stat-n{font-size:24px;font-weight:600}
+.stat-l{font-size:12px;color:#888;margin-top:2px}
+.filter-row{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:end;margin-bottom:10px}
+.action-row{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.lbl{font-size:12px;color:#666;display:block;margin-bottom:6px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px}
+.gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
+.g-item{position:relative;border-radius:8px;overflow:hidden;border:1px solid #e8e8e8;cursor:pointer}
+.g-item img{width:100%;aspect-ratio:1;object-fit:cover;display:block}
+.g-cap{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.52);padding:3px 6px;font-size:10px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.g-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px}
+.g-title{font-size:13px;font-weight:500}
+.g-sub{font-size:12px;color:#888;font-weight:400;margin-left:4px}
+.badges{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.badge{font-size:11px;padding:2px 8px;border-radius:99px;font-weight:500}
+.badge-gray {background:#f0f0f0;color:#666}
+.badge-green{background:#E1F5EE;color:#0F6E56}
+.badge-red  {background:#FCEBEB;color:#A32D2D}
+.badge-blue {background:#E8F0FE;color:#1a56db}
+.badge-amber{background:#FEF3C7;color:#92400e}
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.88);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:12px}
+.lightbox.open{display:flex}
+.lightbox img{max-width:90vw;max-height:80vh;object-fit:contain;border-radius:8px}
+.lb-info{color:#fff;font-size:12px;background:rgba(0,0,0,.5);padding:6px 14px;border-radius:99px;text-align:center;max-width:90vw}
+.lb-close{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.15);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.toast{position:fixed;bottom:20px;right:20px;background:#fff;border:1px solid #e8e8e8;border-radius:12px;padding:11px 16px;font-size:13px;max-width:320px;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.1);transition:transform .2s,opacity .2s}
+.toast.hide{transform:translateY(60px);opacity:0;pointer-events:none}
+.toast.success{border-left:3px solid #1D9E75}
+.toast.error  {border-left:3px solid #E24B4A}
+.pill{display:flex;align-items:center;gap:6px;padding:5px 10px;background:#fff;border:1px solid #e8e8e8;border-radius:8px;font-size:13px}
+.pill-rm{background:none;border:none;color:#bbb;font-size:18px;cursor:pointer;line-height:1;padding:0 2px}
+.pill-rm:hover{color:#E24B4A}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;min-height:32px}
+.pills-input{display:flex;gap:8px}
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px;gap:14px;color:#888;font-size:14px}
+.spinner{width:28px;height:28px;border:2px solid #eee;border-top-color:#1D9E75;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty{text-align:center;padding:48px 16px;color:#bbb;font-size:14px}
+.empty-icon{font-size:40px;display:block;margin-bottom:10px}
+.setup-wrap{max-width:520px;margin:60px auto}
+.setup-card{background:#fff;border:1px solid #e8e8e8;border-radius:12px;padding:28px}
+.setup-title{font-size:20px;font-weight:600;margin-bottom:6px}
+.setup-sub{font-size:13px;color:#888;margin-bottom:24px;line-height:1.7}
+.step{display:flex;gap:12px;margin-bottom:14px;font-size:13px;line-height:1.7;color:#444}
+.step-num{flex-shrink:0;width:22px;height:22px;background:#111;color:#fff;border-radius:50%;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;margin-top:2px}
+code{background:#f5f5f5;padding:1px 6px;border-radius:4px;font-size:12px;font-family:monospace}
+a{color:#1D9E75}
+.header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px}
+.header-title{font-size:20px;font-weight:600}
+.header-sub{font-size:12px;color:#888;margin-top:3px}
+.header-btns{display:flex;gap:8px;flex-wrap:wrap}
 
-/* ── Dashboard styles ─────────────────────────────────────────────────────── */
-.db-section-title { font-size: 11px; font-weight: 600; color: #999; text-transform: uppercase; letter-spacing: .06em; margin: 20px 0 10px; }
-.db-top { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 4px; }
-.db-kpi { background: #fff; border: 1px solid #e8e8e8; border-radius: 12px; padding: 16px 18px; }
-.db-kpi-n { font-size: 28px; font-weight: 700; color: #111; line-height: 1; }
-.db-kpi-l { font-size: 12px; color: #888; margin-top: 5px; }
-.db-kpi-sub { font-size: 11px; color: #1D9E75; margin-top: 3px; font-weight: 500; }
+/* Dashboard */
+.db-section-title{font-size:11px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:.06em;margin:20px 0 10px}
+.db-top{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:4px}
+.db-kpi{background:#fff;border:1px solid #e8e8e8;border-radius:12px;padding:16px 18px}
+.db-kpi-n{font-size:28px;font-weight:700;color:#111;line-height:1}
+.db-kpi-l{font-size:12px;color:#888;margin-top:5px}
+.db-kpi-sub{font-size:11px;color:#1D9E75;margin-top:3px;font-weight:500}
+.bar-chart{display:flex;flex-direction:column;gap:10px}
+.bar-row{display:grid;grid-template-columns:130px 1fr 60px;gap:10px;align-items:center}
+.bar-label{font-size:13px;font-weight:500;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-track{background:#f0f0f0;border-radius:99px;height:10px;overflow:hidden}
+.bar-fill{height:100%;border-radius:99px;transition:width .4s}
+.bar-val{font-size:13px;font-weight:600;color:#111;text-align:right}
+.cal-wrap{overflow-x:auto}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;min-width:300px}
+.cal-day-hdr{font-size:10px;color:#bbb;text-align:center;padding-bottom:2px;font-weight:600}
+.cal-cell{aspect-ratio:1;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;cursor:default;position:relative}
+.cal-cell.empty{background:transparent}
+.cal-cell.zero {background:#f0f0f0;color:#ccc}
+.cal-cell.lvl1 {background:#c7f0df;color:#0a6644}
+.cal-cell.lvl2 {background:#6dd4a8;color:#064d33}
+.cal-cell.lvl3 {background:#1D9E75;color:#fff}
+.cal-cell.lvl4 {background:#0f6e52;color:#fff}
+.cal-cell.today{outline:2px solid #111}
+.cross-table{width:100%;border-collapse:collapse;font-size:13px}
+.cross-table th{background:#f5f5f5;padding:8px 12px;text-align:left;font-weight:600;font-size:12px;border:1px solid #e8e8e8}
+.cross-table td{padding:8px 12px;border:1px solid #e8e8e8}
+.cross-table tr:hover td{background:#fafafa}
+.cross-table .num{text-align:right;font-weight:600;color:#111}
+.cross-table .total-col{background:#f9f9f9;font-weight:700;color:#1D9E75}
+.cross-table .zero-cell{color:#ddd;text-align:right}
+.eng-cards{display:flex;flex-direction:column;gap:8px}
+.eng-card{background:#fff;border:1px solid #e8e8e8;border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:14px}
+.eng-avatar{width:38px;height:38px;border-radius:50%;background:#111;color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex-shrink:0}
+.eng-info{flex:1;min-width:0}
+.eng-name{font-size:14px;font-weight:600}
+.eng-meta{font-size:12px;color:#888;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.eng-stat{text-align:right;flex-shrink:0}
+.eng-stat-n{font-size:20px;font-weight:700;color:#111}
+.eng-stat-l{font-size:11px;color:#888}
+.month-row{display:flex;gap:8px;align-items:center;margin-bottom:20px;flex-wrap:wrap}
+.month-row input[type=month]{width:auto}
 
-/* Bar chart */
-.bar-chart { display: flex; flex-direction: column; gap: 10px; }
-.bar-row { display: grid; grid-template-columns: 130px 1fr 60px; gap: 10px; align-items: center; }
-.bar-label { font-size: 13px; font-weight: 500; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.bar-track { background: #f0f0f0; border-radius: 99px; height: 10px; overflow: hidden; }
-.bar-fill  { height: 100%; border-radius: 99px; transition: width .4s; }
-.bar-val   { font-size: 13px; font-weight: 600; color: #111; text-align: right; }
+/* Tasks */
+.task-board{display:flex;flex-direction:column;gap:24px}
+.task-eng-section{}
+.task-eng-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #f0f0f0}
+.task-eng-avatar{width:34px;height:34px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
+.task-eng-name{font-size:16px;font-weight:700}
+.task-eng-count{font-size:13px;color:#888}
+.task-columns{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.task-col{}
+.task-col-header{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:6px 10px;border-radius:8px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.col-new   .task-col-header{background:#E8F0FE;color:#1a56db}
+.col-recv  .task-col-header{background:#FEF3C7;color:#92400e}
+.col-done  .task-col-header{background:#E1F5EE;color:#0F6E56}
+.task-cards{display:flex;flex-direction:column;gap:8px;min-height:60px}
+.task-card{background:#fff;border:1px solid #e8e8e8;border-radius:10px;padding:12px 14px;cursor:pointer;transition:box-shadow .15s,border-color .15s}
+.task-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.08);border-color:#ccc}
+.task-card-title{font-size:13px;font-weight:600;margin-bottom:4px;line-height:1.4}
+.task-card-factory{font-size:11px;color:#888;margin-bottom:6px}
+.task-card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:6px}
+.task-card-date{font-size:11px;color:#bbb}
+.task-card-photos{font-size:11px;color:#1D9E75;font-weight:500}
+.task-col-empty{font-size:12px;color:#ccc;text-align:center;padding:16px 8px;border:1px dashed #eee;border-radius:8px}
 
-/* Calendar heatmap */
-.cal-wrap { overflow-x: auto; }
-.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; min-width: 300px; }
-.cal-day-hdr { font-size: 10px; color: #bbb; text-align: center; padding-bottom: 2px; font-weight: 600; }
-.cal-cell { aspect-ratio: 1; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; cursor: default; position: relative; }
-.cal-cell.empty { background: transparent; }
-.cal-cell.zero  { background: #f0f0f0; color: #ccc; }
-.cal-cell.lvl1  { background: #c7f0df; color: #0a6644; }
-.cal-cell.lvl2  { background: #6dd4a8; color: #064d33; }
-.cal-cell.lvl3  { background: #1D9E75; color: #fff; }
-.cal-cell.lvl4  { background: #0f6e52; color: #fff; }
-.cal-cell.today { outline: 2px solid #111; }
-.cal-cell .cal-num { font-size: 9px; opacity: 0.85; }
+/* Task modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:flex-start;justify-content:center;z-index:800;overflow-y:auto;padding:24px 16px}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:16px;width:100%;max-width:600px;overflow:hidden;margin:auto}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid #e8e8e8}
+.modal-title{font-size:16px;font-weight:700}
+.modal-close{background:none;border:none;font-size:22px;color:#888;cursor:pointer;line-height:1;padding:0 4px}
+.modal-close:hover{color:#111}
+.modal-body{padding:20px;display:flex;flex-direction:column;gap:14px}
+.modal-footer{padding:14px 20px;border-top:1px solid #e8e8e8;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.status-btn{border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;transition:opacity .15s}
+.status-btn:hover{opacity:.8}
+.status-new {background:#E8F0FE;color:#1a56db}
+.status-recv{background:#FEF3C7;color:#92400e}
+.status-done{background:#E1F5EE;color:#0F6E56}
+.status-btn.active{outline:2px solid currentColor;outline-offset:1px}
+.modal-photos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px}
+.modal-photo-item{position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;border:1px solid #e8e8e8;cursor:pointer}
+.modal-photo-item img{width:100%;height:100%;object-fit:cover}
+.task-desc-text{font-size:13px;color:#444;line-height:1.6;white-space:pre-wrap}
+.divider{height:1px;background:#f0f0f0;margin:4px 0}
 
-/* Cross table */
-.cross-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.cross-table th { background: #f5f5f5; padding: 8px 12px; text-align: left; font-weight: 600; font-size: 12px; border: 1px solid #e8e8e8; }
-.cross-table td { padding: 8px 12px; border: 1px solid #e8e8e8; }
-.cross-table tr:hover td { background: #fafafa; }
-.cross-table .num { text-align: right; font-weight: 600; color: #111; }
-.cross-table .total-col { background: #f9f9f9; font-weight: 700; color: #1D9E75; }
-.cross-table .zero-cell { color: #ddd; text-align: right; }
+/* Add task form */
+.add-task-card{background:#fff;border:2px dashed #e8e8e8;border-radius:12px;padding:20px;margin-bottom:20px;transition:border-color .15s}
+.add-task-card:focus-within{border-color:#1D9E75}
+.add-task-title{font-size:13px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px}
 
-/* Engineer card list */
-.eng-cards { display: flex; flex-direction: column; gap: 8px; }
-.eng-card { background: #fff; border: 1px solid #e8e8e8; border-radius: 10px; padding: 12px 16px; display: flex; align-items: center; gap: 14px; }
-.eng-avatar { width: 38px; height: 38px; border-radius: 50%; background: #111; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; flex-shrink: 0; }
-.eng-info { flex: 1; min-width: 0; }
-.eng-name { font-size: 14px; font-weight: 600; }
-.eng-meta { font-size: 12px; color: #888; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.eng-stat { text-align: right; flex-shrink: 0; }
-.eng-stat-n { font-size: 20px; font-weight: 700; color: #111; }
-.eng-stat-l { font-size: 11px; color: #888; }
+/* Task filter bar */
+.task-filter-bar{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;align-items:center}
+.task-filter-bar select{width:auto}
+.task-filter-bar .lbl{margin:0}
 
-/* Month picker */
-.month-row { display: flex; gap: 8px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
-.month-row input[type=month] { width: auto; }
-
-@media (max-width: 600px) {
-  .row2 { grid-template-columns: 1fr; }
-  .filter-row { grid-template-columns: 1fr 1fr; }
-  .filter-row > *:last-child { grid-column: span 2; }
-  .db-top { grid-template-columns: repeat(2,1fr); }
-  .bar-row { grid-template-columns: 90px 1fr 50px; }
-  .bar-label { font-size: 12px; }
+@media(max-width:640px){
+  .row2{grid-template-columns:1fr}
+  .row3{grid-template-columns:1fr}
+  .filter-row{grid-template-columns:1fr 1fr}
+  .filter-row>*:last-child{grid-column:span 2}
+  .db-top{grid-template-columns:repeat(2,1fr)}
+  .bar-row{grid-template-columns:90px 1fr 50px}
+  .task-columns{grid-template-columns:1fr}
 }
 </style>
 </head>
 <body>
 
 <!-- SETUP -->
-<div id="setup-screen" class="shell" style="display:none;">
+<div id="setup-screen" class="shell" style="display:none">
   <div class="setup-wrap">
     <div class="setup-card">
       <div class="setup-title">⚙️ Cài đặt kết nối</div>
-      <div class="setup-sub">Nhập URL Google Apps Script Web App để kết nối với Google Sheets của bạn.</div>
-      <div class="step"><div class="step-num">1</div><div>Mở <a href="https://script.google.com" target="_blank">script.google.com</a> → chọn project của bạn</div></div>
-      <div class="step"><div class="step-num">2</div><div>Dán nội dung file <code>Code.gs</code> → Save</div></div>
-      <div class="step"><div class="step-num">3</div><div><strong>Deploy → New deployment → Web App</strong><br>Execute as: <strong>Me</strong> · Who has access: <strong>Anyone</strong></div></div>
+      <div class="setup-sub">Nhập URL Google Apps Script Web App để kết nối với Google Sheets.</div>
+      <div class="step"><div class="step-num">1</div><div>Mở <a href="https://script.google.com" target="_blank">script.google.com</a> → chọn project</div></div>
+      <div class="step"><div class="step-num">2</div><div>Dán nội dung <code>Code.gs</code> → Save</div></div>
+      <div class="step"><div class="step-num">3</div><div><strong>Deploy → New deployment → Web App</strong><br>Execute as: <strong>Me</strong> · Access: <strong>Anyone</strong></div></div>
       <div class="step"><div class="step-num">4</div><div>Copy URL và dán bên dưới</div></div>
-      <label class="lbl" style="margin-top:20px;">URL Google Apps Script Web App</label>
-      <input id="url-input" type="text" placeholder="https://script.google.com/macros/s/.../exec" style="margin-bottom:12px;" />
+      <label class="lbl" style="margin-top:20px">URL Apps Script</label>
+      <input id="url-input" type="text" placeholder="https://script.google.com/macros/s/.../exec" style="margin-bottom:12px" />
       <button class="btn-primary" onclick="saveUrl()">✅ Kết nối và bắt đầu</button>
-      <p style="font-size:11px;color:#bbb;text-align:center;margin-top:10px;">URL lưu trong trình duyệt, không gửi đi đâu khác.</p>
+      <p style="font-size:11px;color:#bbb;text-align:center;margin-top:10px">URL lưu trong trình duyệt, không gửi đi đâu.</p>
     </div>
   </div>
 </div>
 
 <!-- APP -->
-<div id="app" class="shell" style="display:none;">
+<div id="app" class="shell" style="display:none">
   <div class="header">
     <div>
       <div class="header-title">📷 Quản lý ảnh kiểm tra nhà máy</div>
-      <div class="header-sub">Google Sheets · Tự xóa sau 33 ngày · <span id="hdr-count" style="color:#1D9E75;"></span></div>
+      <div class="header-sub">Google Sheets · Tự xóa sau 33 ngày · <span id="hdr-count" style="color:#1D9E75"></span></div>
     </div>
     <div class="header-btns">
-      <button class="btn-sm" onclick="toggleMgr()">🏭 Nhà máy <span id="mgr-arrow">▼</span></button>
-      <button class="btn-sm" onclick="resetUrl()" title="Đổi kết nối">⚙️</button>
+      <button class="btn-sm" onclick="toggleMgr()">⚙️ Danh mục <span id="mgr-arrow">▼</span></button>
+      <button class="btn-sm" onclick="resetUrl()" title="Đổi kết nối">🔌</button>
     </div>
   </div>
 
-  <!-- Factory manager panel -->
-  <div id="mgr-panel" class="muted" style="display:none;">
-    <div style="font-size:11px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Quản lý nhà máy</div>
-    <div class="pills" id="factory-pills"><div style="color:#bbb;font-size:13px;">Đang tải...</div></div>
-    <div class="pills-input">
-      <input id="new-fac" placeholder="Tên nhà máy mới..." onkeydown="if(event.key==='Enter')addFactory()" />
-      <button class="btn-sm" onclick="addFactory()">+ Thêm</button>
+  <!-- Management panel -->
+  <div id="mgr-panel" class="muted" style="display:none">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <!-- Factories -->
+      <div>
+        <div style="font-size:11px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">🏭 Nhà máy</div>
+        <div class="pills" id="factory-pills"><div style="color:#bbb;font-size:13px">Đang tải...</div></div>
+        <div class="pills-input">
+          <input id="new-fac" placeholder="Tên nhà máy..." onkeydown="if(event.key==='Enter')addFactory()" />
+          <button class="btn-sm" onclick="addFactory()">+ Thêm</button>
+        </div>
+      </div>
+      <!-- Engineers -->
+      <div>
+        <div style="font-size:11px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">👷 Kỹ sư</div>
+        <div class="pills" id="engineer-pills"><div style="color:#bbb;font-size:13px">Đang tải...</div></div>
+        <div class="pills-input">
+          <input id="new-eng" placeholder="Tên kỹ sư..." onkeydown="if(event.key==='Enter')addEngineer()" />
+          <button class="btn-sm" onclick="addEngineer()">+ Thêm</button>
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- Tabs -->
   <div class="tabs">
     <button class="tab active" id="tab-upload"    onclick="switchTab('upload')">⬆ Upload ảnh</button>
+    <button class="tab"        id="tab-tasks"     onclick="switchTab('tasks')">✅ Giao việc</button>
     <button class="tab"        id="tab-dashboard" onclick="switchTab('dashboard')">📊 Dashboard</button>
     <button class="tab"        id="tab-search"    onclick="switchTab('search')">🔍 Tìm kiếm</button>
   </div>
 
-  <!-- ── Upload pane ─────────────────────────────────────────────────────── -->
+  <!-- ── UPLOAD ───────────────────────────────────────────────────────────── -->
   <div id="pane-upload">
     <div class="card">
       <div class="row2">
@@ -209,17 +274,16 @@ a { color: #1D9E75; }
           <input type="date" id="up-date" onchange="checkBtn()" />
         </div>
       </div>
-      <div style="margin-bottom:12px;">
+      <div style="margin-bottom:12px">
         <label class="lbl">Kỹ sư phụ trách</label>
-        <input id="up-eng" placeholder="Tên kỹ sư..." />
+        <select id="up-eng"><option value="">— Chọn kỹ sư —</option></select>
       </div>
       <div class="dropzone" id="dropzone"
         onclick="document.getElementById('file-input').click()"
         ondragover="event.preventDefault();this.classList.add('over')"
         ondragleave="this.classList.remove('over')"
         ondrop="event.preventDefault();this.classList.remove('over');handleFiles(event.dataTransfer.files)">
-        <span class="drop-icon">📷</span>
-        Nhấn để chọn ảnh hoặc kéo thả vào đây
+        <span class="drop-icon">📷</span>Nhấn để chọn ảnh hoặc kéo thả vào đây
         <div class="drop-hint">JPG, PNG — nhiều ảnh cùng lúc</div>
       </div>
       <input type="file" id="file-input" accept="image/*" multiple style="display:none" onchange="handleFiles(this.files)" />
@@ -228,10 +292,68 @@ a { color: #1D9E75; }
     <button class="btn-primary" id="btn-upload" onclick="doUpload()" disabled>☁ Lưu ảnh lên Google Sheets</button>
   </div>
 
-  <!-- ── Dashboard pane ──────────────────────────────────────────────────── -->
-  <div id="pane-dashboard" style="display:none;">
+  <!-- ── TASKS ────────────────────────────────────────────────────────────── -->
+  <div id="pane-tasks" style="display:none">
+    <!-- Add task form -->
+    <div class="add-task-card" id="add-task-card">
+      <div class="add-task-title">➕ Tạo task mới</div>
+      <div class="row2">
+        <div>
+          <label class="lbl">Giao cho kỹ sư *</label>
+          <select id="tk-eng"><option value="">— Chọn kỹ sư —</option></select>
+        </div>
+        <div>
+          <label class="lbl">Nhà máy</label>
+          <select id="tk-fac"><option value="">— Không chọn —</option></select>
+        </div>
+      </div>
+      <div style="margin-bottom:10px">
+        <label class="lbl">Tiêu đề task *</label>
+        <input id="tk-title" placeholder="Mô tả ngắn công việc cần làm..." />
+      </div>
+      <div style="margin-bottom:12px">
+        <label class="lbl">Mô tả chi tiết</label>
+        <textarea id="tk-desc" placeholder="Thông tin chi tiết, yêu cầu cụ thể..."></textarea>
+      </div>
+      <!-- Task photos -->
+      <div style="margin-bottom:12px">
+        <label class="lbl">Ảnh đính kèm (tùy chọn)</label>
+        <div class="dropzone" style="padding:16px" onclick="document.getElementById('tk-file').click()"
+          ondragover="event.preventDefault();this.classList.add('over')"
+          ondragleave="this.classList.remove('over')"
+          ondrop="event.preventDefault();this.classList.remove('over');handleTaskFiles(event.dataTransfer.files)">
+          <span style="font-size:22px">📎</span> Nhấn hoặc kéo ảnh vào đây
+        </div>
+        <input type="file" id="tk-file" accept="image/*" multiple style="display:none" onchange="handleTaskFiles(this.files)" />
+        <div class="prev-grid" id="tk-preview-grid"></div>
+      </div>
+      <button class="btn-primary" onclick="submitTask()">✅ Tạo task</button>
+    </div>
+
+    <!-- Filter bar -->
+    <div class="task-filter-bar">
+      <span style="font-size:13px;color:#888;font-weight:500">Lọc:</span>
+      <select id="tk-filter-eng" onchange="renderTaskBoard()" style="max-width:180px">
+        <option value="">Tất cả kỹ sư</option>
+      </select>
+      <select id="tk-filter-status" onchange="renderTaskBoard()" style="max-width:180px">
+        <option value="">Tất cả trạng thái</option>
+        <option value="Mới cập nhật">Mới cập nhật</option>
+        <option value="Đã nhận thông tin">Đã nhận thông tin</option>
+        <option value="Done">Done</option>
+      </select>
+      <button class="btn-sm" onclick="loadTasks()">🔄 Tải lại</button>
+    </div>
+
+    <div id="task-board">
+      <div class="empty"><span class="empty-icon">✅</span>Chưa có task nào</div>
+    </div>
+  </div>
+
+  <!-- ── DASHBOARD ─────────────────────────────────────────────────────────── -->
+  <div id="pane-dashboard" style="display:none">
     <div class="month-row">
-      <input type="month" id="db-month" style="max-width:180px;" />
+      <input type="month" id="db-month" style="max-width:180px" />
       <button class="btn-sm" onclick="loadDashboard()">🔄 Tải dữ liệu</button>
     </div>
     <div id="db-content">
@@ -239,27 +361,18 @@ a { color: #1D9E75; }
     </div>
   </div>
 
-  <!-- ── Search pane ─────────────────────────────────────────────────────── -->
-  <div id="pane-search" style="display:none;">
+  <!-- ── SEARCH ────────────────────────────────────────────────────────────── -->
+  <div id="pane-search" style="display:none">
     <div class="stats">
       <div class="stat"><div class="stat-n" id="st-photos">0</div><div class="stat-l">Tổng ảnh</div></div>
       <div class="stat"><div class="stat-n" id="st-sessions">0</div><div class="stat-l">Lượt upload</div></div>
       <div class="stat"><div class="stat-n" id="st-fac">0</div><div class="stat-l">Nhà máy</div></div>
     </div>
     <div class="filter-row">
-      <div>
-        <label class="lbl">Nhà máy</label>
-        <select id="f-fac"><option value="">Tất cả</option></select>
-      </div>
-      <div>
-        <label class="lbl">Từ ngày</label>
-        <input type="date" id="f-date-from" />
-      </div>
-      <div>
-        <label class="lbl">Đến ngày</label>
-        <input type="date" id="f-date-to" />
-      </div>
-      <button class="btn-sm" onclick="doSearch()" style="padding:9px 18px;">🔍 Tìm</button>
+      <div><label class="lbl">Nhà máy</label><select id="f-fac"><option value="">Tất cả</option></select></div>
+      <div><label class="lbl">Từ ngày</label><input type="date" id="f-date-from" /></div>
+      <div><label class="lbl">Đến ngày</label><input type="date" id="f-date-to" /></div>
+      <button class="btn-sm" onclick="doSearch()" style="padding:9px 18px">🔍 Tìm</button>
     </div>
     <div class="action-row">
       <button class="btn-sm" onclick="exportCSV()">📊 Xuất CSV</button>
@@ -276,15 +389,64 @@ a { color: #1D9E75; }
   <div class="lb-info" id="lb-info"></div>
 </div>
 
+<!-- Task detail modal -->
+<div class="modal-overlay" id="task-modal" onclick="if(event.target===this)closeTaskModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="tm-title">Chi tiết task</div>
+      <button class="modal-close" onclick="closeTaskModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div>
+        <div class="lbl">Kỹ sư</div>
+        <div id="tm-engineer" style="font-size:14px;font-weight:600"></div>
+      </div>
+      <div id="tm-factory-row">
+        <div class="lbl">Nhà máy</div>
+        <div id="tm-factory" style="font-size:14px"></div>
+      </div>
+      <div id="tm-desc-row" style="display:none">
+        <div class="lbl">Mô tả</div>
+        <div class="task-desc-text" id="tm-desc"></div>
+      </div>
+      <div>
+        <div class="lbl" style="margin-bottom:8px">Trạng thái</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="status-btn status-new"  onclick="setTaskStatus('Mới cập nhật')"      id="sbtn-new">🔵 Mới cập nhật</button>
+          <button class="status-btn status-recv" onclick="setTaskStatus('Đã nhận thông tin')" id="sbtn-recv">🟡 Đã nhận thông tin</button>
+          <button class="status-btn status-done" onclick="setTaskStatus('Done')"              id="sbtn-done">✅ Done</button>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <!-- Photos -->
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div class="lbl" style="margin:0">Ảnh đính kèm (<span id="tm-photo-count">0</span>)</div>
+          <button class="btn-sm" onclick="document.getElementById('tm-file').click()" style="font-size:12px;padding:5px 10px">+ Thêm ảnh</button>
+        </div>
+        <input type="file" id="tm-file" accept="image/*" multiple style="display:none" onchange="uploadTaskPhotos(this.files)" />
+        <div class="modal-photos-grid" id="tm-photos"></div>
+      </div>
+      <div style="font-size:11px;color:#bbb" id="tm-dates"></div>
+    </div>
+  </div>
+</div>
+
 <!-- Toast -->
 <div class="toast hide" id="toast"></div>
 
 <script>
+// ── Constants & state ─────────────────────────────────────────────────────────
 const LS_KEY    = "factory_app_url_v2";
 const RETENTION = 33;
-let API_URL     = localStorage.getItem(LS_KEY) || "";
-let factories   = [];
+const ENG_COLORS = ["#1D9E75","#1a56db","#9333ea","#e84545","#e67e22","#0891b2","#65a30d","#d97706"];
+let API_URL      = localStorage.getItem(LS_KEY) || "";
+let factories    = [];
+let engineers    = [];
 let pendingFiles = [];
+let taskPending  = [];   // pending photos for new task form
+let allTasks     = [];   // loaded tasks cache
+let currentTaskId = null;
 let searchResults = [];
 let toastTimer;
 
@@ -293,460 +455,508 @@ window.onload = function() {
   if (!API_URL) { showSetup(); return; }
   showApp();
   document.getElementById("up-date").value = today();
-  // Default month picker = current month
   document.getElementById("db-month").value = today().slice(0,7);
-  loadFactories();
+  loadAll();
 };
+function showSetup(){ document.getElementById("setup-screen").style.display="block"; document.getElementById("app").style.display="none"; }
+function showApp()  { document.getElementById("setup-screen").style.display="none";  document.getElementById("app").style.display="block"; }
+function saveUrl(){
+  var url=document.getElementById("url-input").value.trim();
+  if(!url.startsWith("http")){showToast("URL không hợp lệ","error");return;}
+  localStorage.setItem(LS_KEY,url); API_URL=url; showApp();
+  document.getElementById("up-date").value=today();
+  document.getElementById("db-month").value=today().slice(0,7);
+  loadAll();
+}
+function resetUrl(){ if(!confirm("Đổi URL kết nối?"))return; localStorage.removeItem(LS_KEY); location.reload(); }
 
-function showSetup() {
-  document.getElementById("setup-screen").style.display = "block";
-  document.getElementById("app").style.display = "none";
-}
-function showApp() {
-  document.getElementById("setup-screen").style.display = "none";
-  document.getElementById("app").style.display = "block";
-}
-function saveUrl() {
-  var url = document.getElementById("url-input").value.trim();
-  if (!url.startsWith("http")) { showToast("URL không hợp lệ","error"); return; }
-  localStorage.setItem(LS_KEY, url);
-  API_URL = url;
-  showApp();
-  document.getElementById("up-date").value = today();
-  document.getElementById("db-month").value = today().slice(0,7);
-  loadFactories();
-}
-function resetUrl() {
-  if (!confirm("Đổi URL kết nối Apps Script?")) return;
-  localStorage.removeItem(LS_KEY);
-  location.reload();
+async function loadAll() {
+  await Promise.all([loadFactories(), loadEngineers()]);
+  // don't auto-load tasks — load on tab switch
 }
 
-// ── API helpers ───────────────────────────────────────────────────────────────
+// ── API ───────────────────────────────────────────────────────────────────────
 async function apiGet(params) {
-  var qs = Object.entries(params).map(function(kv){ return kv[0] + "=" + encodeURIComponent(kv[1]); }).join("&");
-  var url = API_URL + "?" + qs;
-  var res = await fetch(url, { redirect: "follow", cache: "no-store" });
-  var text = await res.text();
-  if (!text || text.trim() === "") throw new Error("Phản hồi rỗng — kiểm tra lại Apps Script đã deploy chưa");
-  try { return JSON.parse(text); }
-  catch(e) { throw new Error("Phản hồi không hợp lệ: " + text.slice(0,150)); }
+  var qs=Object.entries(params).map(function(kv){return kv[0]+"="+encodeURIComponent(kv[1]);}).join("&");
+  var res=await fetch(API_URL+"?"+qs,{redirect:"follow",cache:"no-store"});
+  var text=await res.text();
+  if(!text||text.trim()==="") throw new Error("Phản hồi rỗng");
+  try{return JSON.parse(text);}catch(e){throw new Error("Phản hồi không hợp lệ: "+text.slice(0,100));}
 }
 async function apiPost(payload) {
-  var res = await fetch(API_URL, {
-    method: "POST",
-    headers: { "Content-Type": "text/plain" },
-    body: JSON.stringify(payload),
-    redirect: "follow"
-  });
-  var text = await res.text();
-  try { return JSON.parse(text); }
-  catch(e) { throw new Error("Phản hồi không hợp lệ: " + text.slice(0,120)); }
+  var res=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain"},body:JSON.stringify(payload),redirect:"follow"});
+  var text=await res.text();
+  try{return JSON.parse(text);}catch(e){throw new Error("Phản hồi không hợp lệ: "+text.slice(0,100));}
 }
 
 // ── Factories ─────────────────────────────────────────────────────────────────
 async function loadFactories() {
   try {
-    var r = await apiGet({ action: "getFactories" });
-    if (r.ok) {
-      factories = r.factories;
-      renderFactoryPills();
-      renderFactorySelects();
-      document.getElementById("st-fac").textContent = factories.length;
-    } else {
-      showToast("Lỗi: " + (r.error||"không xác định"), "error");
-    }
-  } catch(e) {
-    showToast("Không thể kết nối Apps Script: " + e.message, "error");
-  }
+    var r=await apiGet({action:"getFactories"});
+    if(r.ok){ factories=r.factories; renderFactoryPills(); renderFactorySelects(); document.getElementById("st-fac").textContent=factories.length; }
+    else showToast("Lỗi tải nhà máy: "+(r.error||"?"),"error");
+  } catch(e){ showToast("Kết nối thất bại: "+e.message,"error"); }
 }
-function renderFactoryPills() {
-  var el = document.getElementById("factory-pills");
-  if (!factories.length) { el.innerHTML = '<div style="color:#bbb;font-size:13px;">Chưa có nhà máy nào</div>'; return; }
-  el.innerHTML = factories.map(function(f) {
-    return '<div class="pill">🏗 '+esc(f)+'<button class="pill-rm" onclick="removeFactory(\''+esc(f)+'\')" title="Xóa">×</button></div>';
-  }).join("");
+function renderFactoryPills(){
+  var el=document.getElementById("factory-pills");
+  if(!factories.length){el.innerHTML='<div style="color:#bbb;font-size:13px">Chưa có nhà máy nào</div>';return;}
+  el.innerHTML=factories.map(function(f){return'<div class="pill">🏗 '+esc(f)+'<button class="pill-rm" onclick="removeFactory(\''+esc(f)+'\')">×</button></div>';}).join("");
 }
-function renderFactorySelects() {
-  var opts = factories.map(function(f){ return '<option value="'+esc(f)+'">'+esc(f)+'</option>'; }).join("");
-  var upFac = document.getElementById("up-fac");
-  var fFac  = document.getElementById("f-fac");
-  var prev  = upFac.value;
-  upFac.innerHTML = '<option value="">— Chọn nhà máy —</option>' + opts;
-  fFac.innerHTML  = '<option value="">Tất cả</option>' + opts;
-  if (prev) upFac.value = prev;
+function renderFactorySelects(){
+  var opts=factories.map(function(f){return'<option value="'+esc(f)+'">'+esc(f)+'</option>';}).join("");
+  var prev=document.getElementById("up-fac").value;
+  document.getElementById("up-fac").innerHTML='<option value="">— Chọn nhà máy —</option>'+opts;
+  document.getElementById("f-fac").innerHTML='<option value="">Tất cả</option>'+opts;
+  document.getElementById("tk-fac").innerHTML='<option value="">— Không chọn —</option>'+opts;
+  if(prev) document.getElementById("up-fac").value=prev;
 }
-async function addFactory() {
-  var name = document.getElementById("new-fac").value.trim();
-  if (!name) return;
+async function addFactory(){
+  var name=document.getElementById("new-fac").value.trim(); if(!name) return;
+  try{ var r=await apiPost({action:"addFactory",name:name}); if(r.ok){document.getElementById("new-fac").value="";await loadFactories();showToast("✅ Đã thêm: "+name);}else showToast(r.error||"Lỗi","error"); }
+  catch(e){showToast("Lỗi: "+e.message,"error");}
+}
+async function removeFactory(name){
+  if(!confirm('Xóa nhà máy "'+name+'"?')) return;
+  try{ var r=await apiPost({action:"removeFactory",name:name}); if(r.ok){await loadFactories();showToast("Đã xóa: "+name);}else showToast(r.error||"Lỗi","error"); }
+  catch(e){showToast("Lỗi: "+e.message,"error");}
+}
+
+// ── Engineers ─────────────────────────────────────────────────────────────────
+async function loadEngineers() {
   try {
-    var r = await apiPost({ action: "addFactory", name: name });
-    if (r.ok) { document.getElementById("new-fac").value = ""; await loadFactories(); showToast("✅ Đã thêm: " + name); }
-    else showToast(r.error || "Lỗi", "error");
-  } catch(e) { showToast("Lỗi: " + e.message, "error"); }
+    var r=await apiGet({action:"getEngineers"});
+    if(r.ok){ engineers=r.engineers; renderEngineerPills(); renderEngineerSelects(); }
+    else showToast("Lỗi tải kỹ sư: "+(r.error||"?"),"error");
+  } catch(e){ showToast("Kết nối thất bại: "+e.message,"error"); }
 }
-async function removeFactory(name) {
-  if (!confirm('Xóa nhà máy "'+name+'"?\nẢnh cũ vẫn được giữ lại.')) return;
-  try {
-    var r = await apiPost({ action: "removeFactory", name: name });
-    if (r.ok) { await loadFactories(); showToast("Đã xóa: " + name); }
-    else showToast(r.error || "Lỗi", "error");
-  } catch(e) { showToast("Lỗi: " + e.message, "error"); }
+function renderEngineerPills(){
+  var el=document.getElementById("engineer-pills");
+  if(!engineers.length){el.innerHTML='<div style="color:#bbb;font-size:13px">Chưa có kỹ sư nào</div>';return;}
+  el.innerHTML=engineers.map(function(e){return'<div class="pill">👷 '+esc(e)+'<button class="pill-rm" onclick="removeEngineer(\''+esc(e)+'\')">×</button></div>';}).join("");
 }
-function toggleMgr() {
-  var p = document.getElementById("mgr-panel");
-  var a = document.getElementById("mgr-arrow");
-  var open = p.style.display === "block";
-  p.style.display = open ? "none" : "block";
-  a.textContent = open ? "▼" : "▲";
+function renderEngineerSelects(){
+  var opts=engineers.map(function(e){return'<option value="'+esc(e)+'">'+esc(e)+'</option>';}).join("");
+  document.getElementById("up-eng").innerHTML='<option value="">— Chọn kỹ sư —</option>'+opts;
+  document.getElementById("tk-eng").innerHTML='<option value="">— Chọn kỹ sư —</option>'+opts;
+  document.getElementById("tk-filter-eng").innerHTML='<option value="">Tất cả kỹ sư</option>'+opts;
+}
+async function addEngineer(){
+  var name=document.getElementById("new-eng").value.trim(); if(!name) return;
+  try{ var r=await apiPost({action:"addEngineer",name:name}); if(r.ok){document.getElementById("new-eng").value="";await loadEngineers();showToast("✅ Đã thêm kỹ sư: "+name);}else showToast(r.error||"Lỗi","error"); }
+  catch(e){showToast("Lỗi: "+e.message,"error");}
+}
+async function removeEngineer(name){
+  if(!confirm('Xóa kỹ sư "'+name+'"?\nCác task đã giao vẫn giữ nguyên.')) return;
+  try{ var r=await apiPost({action:"removeEngineer",name:name}); if(r.ok){await loadEngineers();showToast("Đã xóa: "+name);}else showToast(r.error||"Lỗi","error"); }
+  catch(e){showToast("Lỗi: "+e.message,"error");}
 }
 
 // ── Tabs ──────────────────────────────────────────────────────────────────────
-function switchTab(t) {
-  ["upload","dashboard","search"].forEach(function(id) {
-    document.getElementById("tab-"+id).classList.toggle("active", id===t);
-    document.getElementById("pane-"+id).style.display = id===t ? "block" : "none";
+function toggleMgr(){
+  var p=document.getElementById("mgr-panel"), a=document.getElementById("mgr-arrow");
+  var open=p.style.display==="block"; p.style.display=open?"none":"block"; a.textContent=open?"▼":"▲";
+}
+function switchTab(t){
+  ["upload","tasks","dashboard","search"].forEach(function(id){
+    document.getElementById("tab-"+id).classList.toggle("active",id===t);
+    document.getElementById("pane-"+id).style.display=id===t?"block":"none";
   });
-  if (t === "search") {
-    var gallery = document.getElementById("gallery");
-    if (!gallery.innerHTML || gallery.innerHTML.indexOf("spinner") !== -1) {
-      gallery.innerHTML = '<div class="empty"><span class="empty-icon">🔍</span>Chọn bộ lọc và bấm <strong>Tìm</strong> để xem ảnh</div>';
-    }
+  if(t==="tasks" && allTasks.length===0) loadTasks();
+  if(t==="search"){
+    var g=document.getElementById("gallery");
+    if(!g.innerHTML||g.innerHTML.indexOf("spinner")!==-1)
+      g.innerHTML='<div class="empty"><span class="empty-icon">🔍</span>Chọn bộ lọc và bấm <strong>Tìm</strong></div>';
   }
-}
-
-// ── Files ─────────────────────────────────────────────────────────────────────
-function handleFiles(fileList) {
-  Array.from(fileList).forEach(function(f) {
-    if (!pendingFiles.find(function(p){return p.name===f.name&&p.size===f.size;})) pendingFiles.push(f);
-  });
-  renderPreviews(); checkBtn();
-}
-function renderPreviews() {
-  document.getElementById("preview-grid").innerHTML = pendingFiles.map(function(f,i) {
-    return '<div class="prev-item"><img src="'+URL.createObjectURL(f)+'" /><button class="prev-rm" onclick="removeFile('+i+')">×</button></div>';
-  }).join("");
-}
-function removeFile(i) { pendingFiles.splice(i,1); renderPreviews(); checkBtn(); }
-function checkBtn() {
-  var ok = document.getElementById("up-fac").value && document.getElementById("up-date").value && pendingFiles.length > 0;
-  document.getElementById("btn-upload").disabled = !ok;
 }
 
 // ── Upload ────────────────────────────────────────────────────────────────────
-async function doUpload() {
-  var factory  = document.getElementById("up-fac").value;
-  var date     = document.getElementById("up-date").value;
-  var engineer = document.getElementById("up-eng").value.trim() || "—";
-  if (!factory||!date||!pendingFiles.length) return;
+function handleFiles(fileList){
+  Array.from(fileList).forEach(function(f){if(!pendingFiles.find(function(p){return p.name===f.name&&p.size===f.size;}))pendingFiles.push(f);});
+  renderPreviews(); checkBtn();
+}
+function renderPreviews(){
+  document.getElementById("preview-grid").innerHTML=pendingFiles.map(function(f,i){
+    return'<div class="prev-item"><img src="'+URL.createObjectURL(f)+'" /><button class="prev-rm" onclick="removeFile('+i+')">×</button></div>';
+  }).join("");
+}
+function removeFile(i){pendingFiles.splice(i,1);renderPreviews();checkBtn();}
+function checkBtn(){
+  var ok=document.getElementById("up-fac").value&&document.getElementById("up-date").value&&pendingFiles.length>0;
+  document.getElementById("btn-upload").disabled=!ok;
+}
+async function doUpload(){
+  var factory=document.getElementById("up-fac").value;
+  var date=document.getElementById("up-date").value;
+  var engineer=document.getElementById("up-eng").value||"—";
+  if(!factory||!date||!pendingFiles.length) return;
+  var btn=document.getElementById("btn-upload");
+  btn.disabled=true; btn.innerHTML='<span class="spinner" style="width:16px;height:16px;border-width:2px"></span> Đang lưu...';
+  try{
+    var photos=await Promise.all(pendingFiles.map(async function(f){return{name:f.name,size:f.size,data:await toB64(f)};}));
+    var r=await apiPost({action:"upload",sessionId:Date.now().toString(),factory,date,engineer,photos});
+    if(r.ok){pendingFiles=[];renderPreviews();document.getElementById("up-fac").value="";document.getElementById("up-eng").value="";document.getElementById("up-date").value=today();showToast("✅ Đã lưu "+r.count+" ảnh — "+factory+" ("+date+")");}
+    else showToast("Lỗi: "+(r.error||"?"),"error");
+  }catch(e){showToast("Lỗi upload: "+e.message,"error");}
+  btn.innerHTML="☁ Lưu ảnh lên Google Sheets"; checkBtn();
+}
 
-  var btn = document.getElementById("btn-upload");
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner" style="width:16px;height:16px;border-width:2px;"></span> Đang lưu...';
+// ── Tasks ─────────────────────────────────────────────────────────────────────
+function handleTaskFiles(fileList){
+  Array.from(fileList).forEach(function(f){if(!taskPending.find(function(p){return p.name===f.name&&p.size===f.size;}))taskPending.push(f);});
+  renderTaskPreviews();
+}
+function renderTaskPreviews(){
+  document.getElementById("tk-preview-grid").innerHTML=taskPending.map(function(f,i){
+    return'<div class="prev-item"><img src="'+URL.createObjectURL(f)+'" /><button class="prev-rm" onclick="removeTaskFile('+i+')">×</button></div>';
+  }).join("");
+}
+function removeTaskFile(i){taskPending.splice(i,1);renderTaskPreviews();}
 
-  try {
-    var photos = await Promise.all(pendingFiles.map(async function(f) {
-      return { name: f.name, size: f.size, data: await toB64(f) };
-    }));
-    var r = await apiPost({ action:"upload", sessionId:Date.now().toString(), factory, date, engineer, photos });
-    if (r.ok) {
-      pendingFiles = []; renderPreviews();
-      document.getElementById("up-fac").value = "";
-      document.getElementById("up-eng").value = "";
-      document.getElementById("up-date").value = today();
-      showToast("✅ Đã lưu " + r.count + " ảnh — " + factory + " (" + date + ")");
-    } else {
-      showToast("Lỗi: " + (r.error||"không xác định"), "error");
+async function submitTask(){
+  var eng=document.getElementById("tk-eng").value;
+  var fac=document.getElementById("tk-fac").value;
+  var title=document.getElementById("tk-title").value.trim();
+  var desc=document.getElementById("tk-desc").value.trim();
+  if(!eng||!title){showToast("Vui lòng chọn kỹ sư và nhập tiêu đề","error");return;}
+  try{
+    var r=await apiPost({action:"addTask",engineer:eng,factory:fac,title:title,description:desc});
+    if(!r.ok){showToast("Lỗi: "+(r.error||"?"),"error");return;}
+    var taskId=r.id;
+    // Upload pending photos
+    if(taskPending.length>0){
+      for(var i=0;i<taskPending.length;i++){
+        var photo=taskPending[i];
+        var data=await toB64(photo);
+        await apiPost({action:"addTaskPhoto",id:taskId,photo:{name:photo.name,size:photo.size,data:data}});
+      }
     }
-  } catch(e) { showToast("Lỗi upload: " + e.message, "error"); }
-
-  btn.innerHTML = "☁ Lưu ảnh lên Google Sheets";
-  checkBtn();
+    document.getElementById("tk-eng").value="";
+    document.getElementById("tk-fac").value="";
+    document.getElementById("tk-title").value="";
+    document.getElementById("tk-desc").value="";
+    taskPending=[]; renderTaskPreviews();
+    showToast("✅ Đã tạo task cho "+eng);
+    await loadTasks();
+  }catch(e){showToast("Lỗi: "+e.message,"error");}
 }
 
-// ── Dashboard ─────────────────────────────────────────────────────────────────
-async function loadDashboard() {
-  var month = document.getElementById("db-month").value;
-  if (!month) { showToast("Chọn tháng trước","error"); return; }
-
-  var el = document.getElementById("db-content");
-  el.innerHTML = '<div class="loading"><div class="spinner"></div>Đang tải thống kê...</div>';
-
-  try {
-    var r = await apiGet({ action: "dashboard", month: month });
-    if (!r.ok) { el.innerHTML = '<div class="empty"><span class="empty-icon">⚠️</span>'+(r.error||"Lỗi")+'</div>'; return; }
-    renderDashboard(r, el);
-  } catch(e) {
-    el.innerHTML = '<div class="empty"><span class="empty-icon">⚠️</span>Lỗi kết nối: '+e.message+'</div>';
-  }
+async function loadTasks(){
+  var board=document.getElementById("task-board");
+  board.innerHTML='<div class="loading"><div class="spinner"></div>Đang tải task...</div>';
+  try{
+    var r=await apiGet({action:"getTasks"});
+    if(!r.ok){board.innerHTML='<div class="empty"><span class="empty-icon">⚠️</span>'+(r.error||"Lỗi")+'</div>';return;}
+    allTasks=r.tasks||[];
+    renderTaskBoard();
+  }catch(e){board.innerHTML='<div class="empty"><span class="empty-icon">⚠️</span>Lỗi kết nối: '+e.message+'</div>';}
 }
 
-function renderDashboard(d, el) {
-  var monthLabel = fmtMonth(d.month);
-  var byFac  = d.byFactory  || {};
-  var byEng  = d.byEngineer || {};
-  var byDay  = d.byDay      || {};
-  var cross  = d.crossTable || {};
-
-  var facKeys = Object.keys(byFac).sort(function(a,b){ return byFac[b].photos - byFac[a].photos; });
-  var engKeys = Object.keys(byEng).sort(function(a,b){ return byEng[b].photos - byEng[a].photos; });
-  var maxFac  = facKeys.length ? byFac[facKeys[0]].photos : 1;
-  var maxEng  = engKeys.length ? byEng[engKeys[0]].photos : 1;
-
-  // ── 1. KPI row ──────────────────────────────────────────────────────────
-  var totalPhotos   = d.total || 0;
-  var totalSessions = Object.values(byFac).reduce(function(s,v){return s+v.sessions;},0);
-  var activeDays    = Object.keys(byDay).length;
-  var avgPerDay     = activeDays ? (totalPhotos / activeDays).toFixed(1) : 0;
-
-  var html = '';
-  html += '<div class="db-section-title">📅 '+monthLabel+'</div>';
-  html += '<div class="db-top">';
-  html += kpi(totalPhotos, "Tổng ảnh", "");
-  html += kpi(totalSessions, "Lượt upload", "");
-  html += kpi(facKeys.length, "Nhà máy", "");
-  html += kpi(activeDays + " ngày", "Có hoạt động", avgPerDay + " ảnh/ngày tb");
-  html += '</div>';
-
-  // ── 2. Bar chart — theo nhà máy ─────────────────────────────────────────
-  html += '<div class="db-section-title">🏭 Theo nhà máy</div>';
-  html += '<div class="card"><div class="bar-chart">';
-  if (!facKeys.length) {
-    html += '<div class="empty" style="padding:20px;">Không có dữ liệu</div>';
-  } else {
-    var COLORS = ["#1D9E75","#0f6e52","#6dd4a8","#a3e4cb","#d0f4e7"];
-    facKeys.forEach(function(f, i) {
-      var v = byFac[f];
-      var pct = Math.round(v.photos / maxFac * 100);
-      html += '<div class="bar-row">'
-        + '<div class="bar-label" title="'+esc(f)+'">'+esc(f)+'</div>'
-        + '<div class="bar-track"><div class="bar-fill" style="width:'+pct+'%;background:'+COLORS[i%COLORS.length]+'"></div></div>'
-        + '<div class="bar-val">'+v.photos+' <span style="font-size:10px;color:#aaa;font-weight:400;">ảnh</span></div>'
-        + '</div>';
-    });
-  }
-  html += '</div></div>';
-
-  // ── 3. Engineer cards ────────────────────────────────────────────────────
-  html += '<div class="db-section-title">👷 Theo kỹ sư</div>';
-  html += '<div class="card"><div class="eng-cards">';
-  if (!engKeys.length) {
-    html += '<div class="empty" style="padding:20px;">Không có dữ liệu</div>';
-  } else {
-    var ENG_COLORS = ["#1D9E75","#1a56db","#9333ea","#e84545","#e67e22"];
-    engKeys.forEach(function(eng, i) {
-      var v = byEng[eng];
-      var initial = eng && eng !== "—" ? eng.trim()[0].toUpperCase() : "?";
-      var facList = (v.factories || []).join(", ");
-      var barPct  = Math.round(v.photos / maxEng * 100);
-      html += '<div class="eng-card">'
-        + '<div class="eng-avatar" style="background:'+ENG_COLORS[i%ENG_COLORS.length]+'">'+esc(initial)+'</div>'
-        + '<div class="eng-info">'
-        +   '<div class="eng-name">'+esc(eng)+'</div>'
-        +   '<div class="eng-meta">🏭 '+esc(facList)+'</div>'
-        +   '<div style="margin-top:6px;"><div class="bar-track" style="height:6px;"><div class="bar-fill" style="width:'+barPct+'%;background:'+ENG_COLORS[i%ENG_COLORS.length]+'"></div></div></div>'
-        + '</div>'
-        + '<div class="eng-stat"><div class="eng-stat-n">'+v.photos+'</div><div class="eng-stat-l">ảnh</div><div style="font-size:10px;color:#aaa;margin-top:2px;">'+v.sessions+' lượt</div></div>'
-        + '</div>';
-    });
-  }
-  html += '</div></div>';
-
-  // ── 4. Cross table: kỹ sư × nhà máy ────────────────────────────────────
-  html += '<div class="db-section-title">📋 Chi tiết: Kỹ sư × Nhà máy (số ảnh)</div>';
-  html += '<div class="card" style="overflow-x:auto;">';
-  if (!engKeys.length || !facKeys.length) {
-    html += '<div class="empty" style="padding:20px;">Không có dữ liệu</div>';
-  } else {
-    html += '<table class="cross-table">';
-    html += '<thead><tr><th>Kỹ sư</th>';
-    facKeys.forEach(function(f){ html += '<th style="text-align:right;">'+esc(f)+'</th>'; });
-    html += '<th style="text-align:right;color:#1D9E75;">Tổng</th></tr></thead><tbody>';
-    engKeys.forEach(function(eng) {
-      var rowTotal = byEng[eng].photos;
-      html += '<tr><td><strong>'+esc(eng)+'</strong></td>';
-      facKeys.forEach(function(f) {
-        var cnt = (cross[eng] && cross[eng][f]) ? cross[eng][f] : 0;
-        if (cnt === 0) {
-          html += '<td class="zero-cell">—</td>';
-        } else {
-          html += '<td class="num">'+cnt+'</td>';
-        }
-      });
-      html += '<td class="num total-col">'+rowTotal+'</td></tr>';
-    });
-    // Total row
-    html += '<tr style="background:#f9f9f9;"><td><strong style="color:#888;">Tổng</strong></td>';
-    facKeys.forEach(function(f){ html += '<td class="num" style="color:#888;">'+byFac[f].photos+'</td>'; });
-    html += '<td class="num total-col">'+totalPhotos+'</td></tr>';
-    html += '</tbody></table>';
-  }
-  html += '</div>';
-
-  // ── 5. Calendar heatmap ──────────────────────────────────────────────────
-  html += '<div class="db-section-title">📅 Hoạt động theo ngày</div>';
-  html += '<div class="card"><div class="cal-wrap">';
-  html += renderCalendar(d.month, byDay);
-  html += '</div></div>';
-
-  el.innerHTML = html;
-}
-
-function renderCalendar(month, byDay) {
-  var parts = month.split("-");
-  var yr = parseInt(parts[0]); var mo = parseInt(parts[1]);
-  var firstDay = new Date(yr, mo-1, 1).getDay(); // 0=Sun
-  var daysInMonth = new Date(yr, mo, 0).getDate();
-  var todayStr = today();
-  var maxVal = Math.max.apply(null, Object.values(byDay).concat([1]));
-
-  var html = '<div class="cal-grid">';
-  var DAY_LABELS = ["CN","T2","T3","T4","T5","T6","T7"];
-  DAY_LABELS.forEach(function(d){ html += '<div class="cal-day-hdr">'+d+'</div>'; });
-
-  // Empty cells before first day
-  for (var i=0; i<firstDay; i++) html += '<div class="cal-cell empty"></div>';
-
-  for (var d=1; d<=daysInMonth; d++) {
-    var dateStr = yr+"-"+String(mo).padStart(2,"0")+"-"+String(d).padStart(2,"0");
-    var cnt = byDay[dateStr] || 0;
-    var lvl = cnt===0 ? "zero" : cnt <= maxVal*0.25 ? "lvl1" : cnt <= maxVal*0.5 ? "lvl2" : cnt <= maxVal*0.75 ? "lvl3" : "lvl4";
-    var isToday = dateStr === todayStr ? " today" : "";
-    var title = cnt ? cnt+" ảnh" : "Không có";
-    html += '<div class="cal-cell '+lvl+isToday+'" title="'+dateStr+': '+title+'">'
-          + '<span class="cal-num">'+d+'</span>'
-          + '</div>';
-  }
-  html += '</div>';
-
-  // Legend
-  html += '<div style="display:flex;gap:8px;align-items:center;margin-top:12px;font-size:11px;color:#888;">';
-  html += '<span>Ít</span>';
-  ["lvl1","lvl2","lvl3","lvl4"].forEach(function(l){
-    html += '<div style="width:14px;height:14px;border-radius:3px;" class="cal-cell '+l+'" title=""></div>';
+function renderTaskBoard(){
+  var filterEng=document.getElementById("tk-filter-eng").value;
+  var filterStatus=document.getElementById("tk-filter-status").value;
+  var tasks=allTasks.filter(function(t){
+    if(filterEng&&t.engineer!==filterEng) return false;
+    if(filterStatus&&t.status!==filterStatus) return false;
+    return true;
   });
-  html += '<span>Nhiều</span>';
-  html += '<span style="margin-left:auto;color:#aaa;">Hover để xem số ảnh</span>';
-  html += '</div>';
+  var board=document.getElementById("task-board");
+  if(!tasks.length){board.innerHTML='<div class="empty"><span class="empty-icon">✅</span>Không có task nào</div>';return;}
 
+  // Group by engineer
+  var engGroups={};
+  tasks.forEach(function(t){
+    if(!engGroups[t.engineer]) engGroups[t.engineer]={tasks:[]};
+    engGroups[t.engineer].tasks.push(t);
+  });
+
+  var html='<div class="task-board">';
+  Object.keys(engGroups).forEach(function(eng,idx){
+    var group=engGroups[eng];
+    var col=ENG_COLORS[idx%ENG_COLORS.length];
+    var initial=eng&&eng!=="—"?eng.trim()[0].toUpperCase():"?";
+    var newT  =group.tasks.filter(function(t){return t.status==="Mới cập nhật";});
+    var recvT =group.tasks.filter(function(t){return t.status==="Đã nhận thông tin";});
+    var doneT =group.tasks.filter(function(t){return t.status==="Done";});
+
+    html+='<div class="task-eng-section">';
+    html+='<div class="task-eng-header">';
+    html+='<div class="task-eng-avatar" style="background:'+col+'">'+esc(initial)+'</div>';
+    html+='<div class="task-eng-name">'+esc(eng)+'</div>';
+    html+='<div class="task-eng-count">'+group.tasks.length+' task</div>';
+    html+='</div>';
+    html+='<div class="task-columns">';
+    html+=renderTaskCol("Mới cập nhật","col-new","🔵",newT);
+    html+=renderTaskCol("Đã nhận thông tin","col-recv","🟡",recvT);
+    html+=renderTaskCol("Done","col-done","✅",doneT);
+    html+='</div></div>';
+  });
+  html+='</div>';
+  board.innerHTML=html;
+}
+
+function renderTaskCol(label,cls,icon,tasks){
+  var html='<div class="task-col '+cls+'">';
+  html+='<div class="task-col-header">'+icon+' '+label+' <span style="opacity:.7">('+tasks.length+')</span></div>';
+  html+='<div class="task-cards">';
+  if(!tasks.length){html+='<div class="task-col-empty">Chưa có</div>';}
+  else tasks.forEach(function(t){
+    var fd=t.factory?'<div class="task-card-factory">🏭 '+esc(t.factory)+'</div>':'';
+    var created=t.createdAt?fmtDatetime(t.createdAt):"";
+    var pCount=t.photos&&t.photos.length?'<span class="task-card-photos">📎 '+t.photos.length+' ảnh</span>':'';
+    html+='<div class="task-card" onclick="openTaskModal(\''+esc(t.id)+'\')">';
+    html+='<div class="task-card-title">'+esc(t.title)+'</div>';
+    html+=fd;
+    html+='<div class="task-card-footer"><span class="task-card-date">'+created+'</span>'+pCount+'</div>';
+    html+='</div>';
+  });
+  html+='</div></div>';
   return html;
 }
 
-function kpi(val, label, sub) {
-  return '<div class="db-kpi"><div class="db-kpi-n">'+val+'</div><div class="db-kpi-l">'+label+'</div>'+(sub?'<div class="db-kpi-sub">'+sub+'</div>':'')+'</div>';
+// ── Task modal ────────────────────────────────────────────────────────────────
+function openTaskModal(id){
+  var t=allTasks.find(function(x){return x.id===id;});
+  if(!t) return;
+  currentTaskId=id;
+  document.getElementById("tm-title").textContent=t.title;
+  document.getElementById("tm-engineer").textContent=t.engineer;
+  var facRow=document.getElementById("tm-factory-row");
+  if(t.factory){document.getElementById("tm-factory").textContent=t.factory;facRow.style.display="";}
+  else{facRow.style.display="none";}
+  var descRow=document.getElementById("tm-desc-row");
+  if(t.description){document.getElementById("tm-desc").textContent=t.description;descRow.style.display="";}
+  else{descRow.style.display="none";}
+  // Status buttons
+  ["new","recv","done"].forEach(function(s){document.getElementById("sbtn-"+s).classList.remove("active");});
+  if(t.status==="Mới cập nhật") document.getElementById("sbtn-new").classList.add("active");
+  else if(t.status==="Đã nhận thông tin") document.getElementById("sbtn-recv").classList.add("active");
+  else if(t.status==="Done") document.getElementById("sbtn-done").classList.add("active");
+  // Photos
+  renderModalPhotos(t.photos||[]);
+  // Dates
+  var dates="Tạo: "+fmtDatetime(t.createdAt);
+  if(t.updatedAt&&t.updatedAt!==t.createdAt) dates+="  ·  Cập nhật: "+fmtDatetime(t.updatedAt);
+  document.getElementById("tm-dates").textContent=dates;
+  document.getElementById("task-modal").classList.add("open");
 }
+function closeTaskModal(){document.getElementById("task-modal").classList.remove("open");currentTaskId=null;}
 
-// ── Search ────────────────────────────────────────────────────────────────────
-async function doSearch() {
-  var factory  = document.getElementById("f-fac").value;
-  var dateFrom = document.getElementById("f-date-from").value;
-  var dateTo   = document.getElementById("f-date-to").value;
-  var gallery  = document.getElementById("gallery");
-  gallery.innerHTML = '<div class="loading"><div class="spinner"></div>Đang tải dữ liệu...</div>';
-
-  try {
-    var params = { action: "search" };
-    if (factory)  params.factory  = factory;
-    if (dateFrom) params.dateFrom = dateFrom;
-    if (dateTo)   params.dateTo   = dateTo;
-    var r = await apiGet(params);
-    if (!r.ok) { gallery.innerHTML = '<div class="empty"><span class="empty-icon">⚠️</span>'+(r.error||"Lỗi không xác định")+'</div>'; return; }
-    searchResults = r.sessions || [];
-    updateStats(searchResults);
-    renderGallery(searchResults);
-  } catch(e) {
-    gallery.innerHTML = '<div class="empty"><span class="empty-icon">⚠️</span>Lỗi kết nối: '+e.message+'</div>';
-  }
-}
-
-function updateStats(sessions) {
-  var total = sessions.reduce(function(s,r){return s+r.photos.length;},0);
-  document.getElementById("st-photos").textContent   = total;
-  document.getElementById("st-sessions").textContent = sessions.length;
-  document.getElementById("hdr-count").textContent   = total + " ảnh / " + sessions.length + " lượt";
-}
-
-function renderGallery(sessions) {
-  var gallery = document.getElementById("gallery");
-  if (!sessions.length) {
-    gallery.innerHTML = '<div class="empty"><span class="empty-icon">🖼</span>Không tìm thấy ảnh nào<br><span style="font-size:12px;margin-top:6px;display:block;">Thử xóa bộ lọc hoặc upload ảnh mới</span></div>';
-    return;
-  }
-  gallery.innerHTML = sessions.map(function(s) {
-    var dl = daysLeft(s.uploadedAt);
-    var bc = dl <= 7 ? "badge-red" : "badge-green";
-    var fd = fmtDate(s.date);
-    var items = s.photos.map(function(p) {
-      var info = encodeURIComponent(JSON.stringify({ pName: p.name, pData: p.data, factory: s.factory, date: fd, eng: s.engineer }));
-      var cap  = p.name.length > 18 ? p.name.slice(0,15)+"…" : p.name;
-      return '<div class="g-item" onclick=\'openLB("'+info+'")\'><img src="'+p.data+'" alt="'+esc(p.name)+'" loading="lazy" /><div class="g-cap">'+esc(cap)+'</div></div>';
-    }).join("");
-    return '<div style="margin-bottom:2rem;">'
-      + '<div class="g-header">'
-      + '<div class="g-title">🏭 '+esc(s.factory)+'<span class="g-sub">— '+fd+' · '+esc(s.engineer)+'</span></div>'
-      + '<div class="badges"><span class="badge badge-gray">'+s.photos.length+' ảnh</span><span class="badge '+bc+'">'+dl+'d</span></div>'
-      + '</div>'
-      + '<div class="gallery-grid">'+items+'</div>'
-      + '</div>';
+function renderModalPhotos(photos){
+  document.getElementById("tm-photo-count").textContent=photos.length;
+  var el=document.getElementById("tm-photos");
+  if(!photos.length){el.innerHTML='<div style="color:#bbb;font-size:13px">Chưa có ảnh đính kèm</div>';return;}
+  el.innerHTML=photos.map(function(p,i){
+    var info=encodeURIComponent(JSON.stringify({pName:p.name,pData:p.data,factory:"",date:"",eng:""}));
+    return'<div class="modal-photo-item" onclick=\'openLB("'+info+'")\'><img src="'+p.data+'" alt="'+esc(p.name)+'" loading="lazy" /></div>';
   }).join("");
 }
 
-function clearFilters() {
-  document.getElementById("f-fac").value       = "";
-  document.getElementById("f-date-from").value = "";
-  document.getElementById("f-date-to").value   = "";
-  document.getElementById("gallery").innerHTML  = '<div class="empty"><span class="empty-icon">🔍</span>Bấm <strong>Tìm</strong> để xem ảnh</div>';
+async function setTaskStatus(status){
+  if(!currentTaskId) return;
+  try{
+    var r=await apiPost({action:"updateTaskStatus",id:currentTaskId,status:status});
+    if(!r.ok){showToast("Lỗi: "+(r.error||"?"),"error");return;}
+    // update local cache
+    var t=allTasks.find(function(x){return x.id===currentTaskId;});
+    if(t){ t.status=status; t.updatedAt=new Date().toISOString(); }
+    // update buttons
+    ["new","recv","done"].forEach(function(s){document.getElementById("sbtn-"+s).classList.remove("active");});
+    if(status==="Mới cập nhật") document.getElementById("sbtn-new").classList.add("active");
+    else if(status==="Đã nhận thông tin") document.getElementById("sbtn-recv").classList.add("active");
+    else if(status==="Done") document.getElementById("sbtn-done").classList.add("active");
+    renderTaskBoard();
+    showToast("✅ Đã cập nhật: "+status);
+  }catch(e){showToast("Lỗi: "+e.message,"error");}
+}
+
+async function uploadTaskPhotos(fileList){
+  if(!currentTaskId) return;
+  var files=Array.from(fileList);
+  if(!files.length) return;
+  showToast("Đang upload "+files.length+" ảnh...");
+  try{
+    var last;
+    for(var i=0;i<files.length;i++){
+      var f=files[i]; var data=await toB64(f);
+      last=await apiPost({action:"addTaskPhoto",id:currentTaskId,photo:{name:f.name,size:f.size,data:data}});
+    }
+    if(last&&last.ok){
+      // reload task to get updated photos
+      var r=await apiGet({action:"getTasks"});
+      if(r.ok){allTasks=r.tasks||[];}
+      var t=allTasks.find(function(x){return x.id===currentTaskId;});
+      if(t) renderModalPhotos(t.photos||[]);
+      showToast("✅ Đã thêm "+files.length+" ảnh");
+    } else showToast("Lỗi upload ảnh","error");
+  }catch(e){showToast("Lỗi: "+e.message,"error");}
+  document.getElementById("tm-file").value="";
+}
+
+// ── Dashboard ─────────────────────────────────────────────────────────────────
+async function loadDashboard(){
+  var month=document.getElementById("db-month").value;
+  if(!month){showToast("Chọn tháng trước","error");return;}
+  var el=document.getElementById("db-content");
+  el.innerHTML='<div class="loading"><div class="spinner"></div>Đang tải thống kê...</div>';
+  try{
+    var r=await apiGet({action:"dashboard",month:month});
+    if(!r.ok){el.innerHTML='<div class="empty"><span class="empty-icon">⚠️</span>'+(r.error||"Lỗi")+'</div>';return;}
+    renderDashboard(r,el);
+  }catch(e){el.innerHTML='<div class="empty"><span class="empty-icon">⚠️</span>Lỗi: '+e.message+'</div>';}
+}
+function renderDashboard(d,el){
+  var monthLabel=fmtMonth(d.month);
+  var byFac=d.byFactory||{}, byEng=d.byEngineer||{}, byDay=d.byDay||{}, cross=d.crossTable||{};
+  var facKeys=Object.keys(byFac).sort(function(a,b){return byFac[b].photos-byFac[a].photos;});
+  var engKeys=Object.keys(byEng).sort(function(a,b){return byEng[b].photos-byEng[a].photos;});
+  var maxFac=facKeys.length?byFac[facKeys[0]].photos:1;
+  var maxEng=engKeys.length?byEng[engKeys[0]].photos:1;
+  var totalPhotos=d.total||0;
+  var totalSessions=Object.values(byFac).reduce(function(s,v){return s+v.sessions;},0);
+  var activeDays=Object.keys(byDay).length;
+  var avgPerDay=activeDays?(totalPhotos/activeDays).toFixed(1):0;
+  var BAR_COLORS=["#1D9E75","#0f6e52","#6dd4a8","#a3e4cb","#d0f4e7"];
+  var html='<div class="db-section-title">📅 '+monthLabel+'</div>';
+  html+='<div class="db-top">';
+  html+=kpi(totalPhotos,"Tổng ảnh","");
+  html+=kpi(totalSessions,"Lượt upload","");
+  html+=kpi(facKeys.length,"Nhà máy","");
+  html+=kpi(activeDays+" ngày","Có hoạt động",avgPerDay+" ảnh/ngày tb");
+  html+='</div>';
+  html+='<div class="db-section-title">🏭 Theo nhà máy</div><div class="card"><div class="bar-chart">';
+  if(!facKeys.length){html+='<div class="empty" style="padding:20px">Không có dữ liệu</div>';}
+  else facKeys.forEach(function(f,i){
+    var v=byFac[f]; var pct=Math.round(v.photos/maxFac*100);
+    html+='<div class="bar-row"><div class="bar-label" title="'+esc(f)+'">'+esc(f)+'</div><div class="bar-track"><div class="bar-fill" style="width:'+pct+'%;background:'+BAR_COLORS[i%BAR_COLORS.length]+'"></div></div><div class="bar-val">'+v.photos+' <span style="font-size:10px;color:#aaa;font-weight:400">ảnh</span></div></div>';
+  });
+  html+='</div></div>';
+  html+='<div class="db-section-title">👷 Theo kỹ sư</div><div class="card"><div class="eng-cards">';
+  if(!engKeys.length){html+='<div class="empty" style="padding:20px">Không có dữ liệu</div>';}
+  else engKeys.forEach(function(eng,i){
+    var v=byEng[eng]; var col=ENG_COLORS[i%ENG_COLORS.length];
+    var initial=eng&&eng!=="—"?eng.trim()[0].toUpperCase():"?";
+    var facList=(v.factories||[]).join(", "); var barPct=Math.round(v.photos/maxEng*100);
+    html+='<div class="eng-card"><div class="eng-avatar" style="background:'+col+'">'+esc(initial)+'</div><div class="eng-info"><div class="eng-name">'+esc(eng)+'</div><div class="eng-meta">🏭 '+esc(facList)+'</div><div style="margin-top:6px"><div class="bar-track" style="height:6px"><div class="bar-fill" style="width:'+barPct+'%;background:'+col+'"></div></div></div></div><div class="eng-stat"><div class="eng-stat-n">'+v.photos+'</div><div class="eng-stat-l">ảnh</div><div style="font-size:10px;color:#aaa;margin-top:2px">'+v.sessions+' lượt</div></div></div>';
+  });
+  html+='</div></div>';
+  html+='<div class="db-section-title">📋 Chi tiết: Kỹ sư × Nhà máy</div><div class="card" style="overflow-x:auto">';
+  if(!engKeys.length||!facKeys.length){html+='<div class="empty" style="padding:20px">Không có dữ liệu</div>';}
+  else{
+    html+='<table class="cross-table"><thead><tr><th>Kỹ sư</th>';
+    facKeys.forEach(function(f){html+='<th style="text-align:right">'+esc(f)+'</th>';});
+    html+='<th style="text-align:right;color:#1D9E75">Tổng</th></tr></thead><tbody>';
+    engKeys.forEach(function(eng){
+      html+='<tr><td><strong>'+esc(eng)+'</strong></td>';
+      facKeys.forEach(function(f){
+        var cnt=(cross[eng]&&cross[eng][f])?cross[eng][f]:0;
+        html+=cnt?'<td class="num">'+cnt+'</td>':'<td class="zero-cell">—</td>';
+      });
+      html+='<td class="num total-col">'+byEng[eng].photos+'</td></tr>';
+    });
+    html+='<tr style="background:#f9f9f9"><td><strong style="color:#888">Tổng</strong></td>';
+    facKeys.forEach(function(f){html+='<td class="num" style="color:#888">'+byFac[f].photos+'</td>';});
+    html+='<td class="num total-col">'+totalPhotos+'</td></tr>';
+    html+='</tbody></table>';
+  }
+  html+='</div>';
+  html+='<div class="db-section-title">📅 Hoạt động theo ngày</div><div class="card"><div class="cal-wrap">'+renderCalendar(d.month,byDay)+'</div></div>';
+  el.innerHTML=html;
+}
+function renderCalendar(month,byDay){
+  var parts=month.split("-"); var yr=parseInt(parts[0]),mo=parseInt(parts[1]);
+  var firstDay=new Date(yr,mo-1,1).getDay();
+  var daysInMonth=new Date(yr,mo,0).getDate();
+  var todayStr=today();
+  var maxVal=Math.max.apply(null,Object.values(byDay).concat([1]));
+  var html='<div class="cal-grid">';
+  ["CN","T2","T3","T4","T5","T6","T7"].forEach(function(d){html+='<div class="cal-day-hdr">'+d+'</div>';});
+  for(var i=0;i<firstDay;i++) html+='<div class="cal-cell empty"></div>';
+  for(var d=1;d<=daysInMonth;d++){
+    var ds=yr+"-"+String(mo).padStart(2,"0")+"-"+String(d).padStart(2,"0");
+    var cnt=byDay[ds]||0;
+    var lvl=cnt===0?"zero":cnt<=maxVal*.25?"lvl1":cnt<=maxVal*.5?"lvl2":cnt<=maxVal*.75?"lvl3":"lvl4";
+    var isTod=ds===todayStr?" today":"";
+    html+='<div class="cal-cell '+lvl+isTod+'" title="'+ds+': '+(cnt?cnt+"ảnh":"Không có")+'"><span style="font-size:9px;opacity:.85">'+d+'</span></div>';
+  }
+  html+='</div><div style="display:flex;gap:8px;align-items:center;margin-top:12px;font-size:11px;color:#888"><span>Ít</span>';
+  ["lvl1","lvl2","lvl3","lvl4"].forEach(function(l){html+='<div style="width:14px;height:14px;border-radius:3px" class="cal-cell '+l+'"></div>';});
+  html+='<span>Nhiều</span></div>';
+  return html;
+}
+function kpi(val,label,sub){return'<div class="db-kpi"><div class="db-kpi-n">'+val+'</div><div class="db-kpi-l">'+label+'</div>'+(sub?'<div class="db-kpi-sub">'+sub+'</div>':'')+'</div>';}
+
+// ── Search ────────────────────────────────────────────────────────────────────
+async function doSearch(){
+  var factory=document.getElementById("f-fac").value;
+  var dateFrom=document.getElementById("f-date-from").value;
+  var dateTo=document.getElementById("f-date-to").value;
+  var gallery=document.getElementById("gallery");
+  gallery.innerHTML='<div class="loading"><div class="spinner"></div>Đang tải...</div>';
+  try{
+    var params={action:"search"};
+    if(factory) params.factory=factory;
+    if(dateFrom) params.dateFrom=dateFrom;
+    if(dateTo)   params.dateTo=dateTo;
+    var r=await apiGet(params);
+    if(!r.ok){gallery.innerHTML='<div class="empty"><span class="empty-icon">⚠️</span>'+(r.error||"Lỗi")+'</div>';return;}
+    searchResults=r.sessions||[]; updateStats(searchResults); renderGallery(searchResults);
+  }catch(e){gallery.innerHTML='<div class="empty"><span class="empty-icon">⚠️</span>Lỗi: '+e.message+'</div>';}
+}
+function updateStats(sessions){
+  var total=sessions.reduce(function(s,r){return s+r.photos.length;},0);
+  document.getElementById("st-photos").textContent=total;
+  document.getElementById("st-sessions").textContent=sessions.length;
+  document.getElementById("hdr-count").textContent=total+" ảnh / "+sessions.length+" lượt";
+}
+function renderGallery(sessions){
+  var gallery=document.getElementById("gallery");
+  if(!sessions.length){gallery.innerHTML='<div class="empty"><span class="empty-icon">🖼</span>Không tìm thấy ảnh nào</div>';return;}
+  gallery.innerHTML=sessions.map(function(s){
+    var dl=daysLeft(s.uploadedAt); var bc=dl<=7?"badge-red":"badge-green"; var fd=fmtDate(s.date);
+    var items=s.photos.map(function(p){
+      var info=encodeURIComponent(JSON.stringify({pName:p.name,pData:p.data,factory:s.factory,date:fd,eng:s.engineer}));
+      var cap=p.name.length>18?p.name.slice(0,15)+"…":p.name;
+      return'<div class="g-item" onclick=\'openLB("'+info+'")\'><img src="'+p.data+'" alt="'+esc(p.name)+'" loading="lazy" /><div class="g-cap">'+esc(cap)+'</div></div>';
+    }).join("");
+    return'<div style="margin-bottom:2rem"><div class="g-header"><div class="g-title">🏭 '+esc(s.factory)+'<span class="g-sub">— '+fd+' · '+esc(s.engineer)+'</span></div><div class="badges"><span class="badge badge-gray">'+s.photos.length+' ảnh</span><span class="badge '+bc+'">'+dl+'d</span></div></div><div class="gallery-grid">'+items+'</div></div>';
+  }).join("");
+}
+function clearFilters(){
+  document.getElementById("f-fac").value=""; document.getElementById("f-date-from").value=""; document.getElementById("f-date-to").value="";
+  document.getElementById("gallery").innerHTML='<div class="empty"><span class="empty-icon">🔍</span>Bấm <strong>Tìm</strong> để xem ảnh</div>';
   updateStats([]);
 }
-
-// ── Lightbox ──────────────────────────────────────────────────────────────────
-function openLB(encoded) {
-  try {
-    var d = JSON.parse(decodeURIComponent(encoded));
-    document.getElementById("lb-img").src = d.pData;
-    document.getElementById("lb-info").textContent = d.factory + " · " + d.date + " · " + d.eng + " · " + d.pName;
-    document.getElementById("lightbox").classList.add("open");
-  } catch(e) {}
-}
-function closeLB() { document.getElementById("lightbox").classList.remove("open"); }
-
-// ── CSV ───────────────────────────────────────────────────────────────────────
-function exportCSV() {
-  if (!searchResults.length) { showToast("Không có dữ liệu","error"); return; }
-  var rows = [["STT","Nhà máy","Ngày","Kỹ sư","File","KB","Upload lúc"]];
-  var i = 1;
-  searchResults.forEach(function(s) {
-    s.photos.forEach(function(p) {
-      rows.push([i++, s.factory, s.date, s.engineer, p.name, Math.round(p.size/1024), new Date(s.uploadedAt).toLocaleString("vi-VN")]);
-    });
-  });
-  var csv = rows.map(function(r){return r.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"';}).join(",");}).join("\n");
-  var a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"}));
-  a.download = "kiem_tra_" + today() + ".csv";
-  a.click();
+function exportCSV(){
+  if(!searchResults.length){showToast("Không có dữ liệu","error");return;}
+  var rows=[["STT","Nhà máy","Ngày","Kỹ sư","File","KB","Upload lúc"]]; var i=1;
+  searchResults.forEach(function(s){s.photos.forEach(function(p){rows.push([i++,s.factory,s.date,s.engineer,p.name,Math.round(p.size/1024),new Date(s.uploadedAt).toLocaleString("vi-VN")]);});});
+  var csv=rows.map(function(r){return r.map(function(c){return'"'+String(c).replace(/"/g,'""')+'"';}).join(",");}).join("\n");
+  var a=document.createElement("a"); a.href=URL.createObjectURL(new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"})); a.download="kiem_tra_"+today()+".csv"; a.click();
   showToast("✅ Đã xuất CSV");
 }
 
+// ── Lightbox ──────────────────────────────────────────────────────────────────
+function openLB(encoded){
+  try{var d=JSON.parse(decodeURIComponent(encoded));document.getElementById("lb-img").src=d.pData;document.getElementById("lb-info").textContent=d.factory+(d.date?" · "+d.date:"")+(d.eng&&d.eng!=="—"?" · "+d.eng:"")+" · "+d.pName;document.getElementById("lightbox").classList.add("open");}catch(e){}
+}
+function closeLB(){document.getElementById("lightbox").classList.remove("open");}
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
-function today()    { return new Date().toISOString().slice(0,10); }
-function fmtDate(iso) { return (iso||"").split("-").reverse().join("/"); }
-function fmtMonth(m) {
-  if (!m) return "";
-  var p = m.split("-");
-  return "Tháng " + parseInt(p[1]) + "/" + p[0];
+function today(){return new Date().toISOString().slice(0,10);}
+function fmtDate(iso){return(iso||"").split("-").reverse().join("/");}
+function fmtMonth(m){if(!m)return"";var p=m.split("-");return"Tháng "+parseInt(p[1])+"/"+p[0];}
+function fmtDatetime(iso){
+  if(!iso) return "";
+  try{ var d=new Date(iso); return d.toLocaleDateString("vi-VN")+" "+d.toLocaleTimeString("vi-VN",{hour:"2-digit",minute:"2-digit"}); }
+  catch(e){ return iso.slice(0,10); }
 }
-function daysLeft(at) { return Math.ceil((new Date(at).getTime() + RETENTION*86400000 - Date.now()) / 86400000); }
-function esc(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
-function toB64(file) {
-  return new Promise(function(res,rej){ var r=new FileReader(); r.onload=function(){res(r.result);}; r.onerror=rej; r.readAsDataURL(file); });
-}
-function showToast(msg, type) {
-  clearTimeout(toastTimer);
-  var t = document.getElementById("toast");
-  t.textContent = msg;
-  t.className = "toast " + (type||"success");
-  toastTimer = setTimeout(function(){ t.className="toast hide"; }, 3500);
+function daysLeft(at){return Math.ceil((new Date(at).getTime()+RETENTION*86400000-Date.now())/86400000);}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function toB64(file){return new Promise(function(res,rej){var r=new FileReader();r.onload=function(){res(r.result);};r.onerror=rej;r.readAsDataURL(file);});}
+function showToast(msg,type){
+  clearTimeout(toastTimer);var t=document.getElementById("toast");
+  t.textContent=msg;t.className="toast "+(type||"success");
+  toastTimer=setTimeout(function(){t.className="toast hide";},3500);
 }
 </script>
 </body>
