@@ -247,12 +247,14 @@ function resetUrl() {
 // ── API helpers ───────────────────────────────────────────────────────────────
 // GET — dùng cho search & getFactories (tránh CORS preflight)
 async function apiGet(params) {
-  const qs = Object.entries(params).map(([k,v]) => k + "=" + encodeURIComponent(v)).join("&");
+  const qs = Object.entries(params).map(function([k,v]){ return k + "=" + encodeURIComponent(v); }).join("&");
   const url = API_URL + "?" + qs;
-  const res = await fetch(url, { redirect: "follow" });
+  // Apps Script trả về 302 redirect đến URL thật — cần follow
+  const res = await fetch(url, { redirect: "follow", cache: "no-store" });
   const text = await res.text();
+  if (!text || text.trim() === "") throw new Error("Phản hồi rỗng — kiểm tra lại Apps Script đã deploy chưa");
   try { return JSON.parse(text); }
-  catch(e) { throw new Error("Phản hồi không hợp lệ: " + text.slice(0,120)); }
+  catch(e) { throw new Error("Phản hồi không hợp lệ: " + text.slice(0,150)); }
 }
 
 // POST — dùng cho upload, addFactory, removeFactory
@@ -336,7 +338,12 @@ function switchTab(t) {
     document.getElementById("tab-"+id).classList.toggle("active", id===t);
     document.getElementById("pane-"+id).style.display = id===t ? "block" : "none";
   });
-  if (t === "search") doSearch();
+  if (t === "search") {
+    var gallery = document.getElementById("gallery");
+    if (!gallery.innerHTML || gallery.innerHTML.indexOf("spinner") !== -1) {
+      gallery.innerHTML = '<div class="empty"><span class="empty-icon">🔍</span>Chọn bộ lọc và bấm <strong>Tìm</strong> để xem ảnh</div>';
+    }
+  }
 }
 
 // ── Files ─────────────────────────────────────────────────────────────────────
@@ -447,7 +454,8 @@ function renderGallery(sessions) {
 function clearFilters() {
   document.getElementById("f-fac").value  = "";
   document.getElementById("f-date").value = "";
-  doSearch();
+  document.getElementById("gallery").innerHTML = '<div class="empty"><span class="empty-icon">🔍</span>Bấm <strong>Tìm</strong> để xem ảnh</div>';
+  updateStats([]);
 }
 
 // ── Lightbox ──────────────────────────────────────────────────────────────────
