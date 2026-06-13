@@ -618,27 +618,46 @@ async function submitTask(){
   var title=document.getElementById("tk-title").value.trim();
   var desc=document.getElementById("tk-desc").value.trim();
   if(!eng||!title){showToast("Vui lòng chọn kỹ sư và nhập tiêu đề","error");return;}
+
+  // ── Bước 1: Tạo task (không kèm ảnh) — nhẹ, ít có khả năng lỗi
+  var taskId;
   try{
     var r=await apiPost({action:"addTask",engineer:eng,factory:fac,title:title,description:desc});
-    if(!r.ok){showToast("Lỗi: "+(r.error||"?"),"error");return;}
-    var taskId=r.id;
-    // Upload pending photos — từng ảnh một, resize trước để tránh payload quá lớn
-    if(taskPending.length>0){
-      for(var i=0;i<taskPending.length;i++){
-        var photo=taskPending[i];
+    if(!r.ok){showToast("Lỗi tạo task: "+(r.error||"?"),"error");return;}
+    taskId=r.id;
+  }catch(e){showToast("Lỗi tạo task: "+e.message,"error");return;}
+
+  // ── Reset form NGAY sau khi task tạo xong — tránh duplicate nếu bước sau lỗi
+  var photosToUpload=taskPending.slice(); // copy
+  document.getElementById("tk-eng").value="";
+  document.getElementById("tk-fac").value="";
+  document.getElementById("tk-title").value="";
+  document.getElementById("tk-desc").value="";
+  taskPending=[]; renderTaskPreviews();
+  showToast("✅ Đã tạo task cho "+eng+(photosToUpload.length?" — đang upload ảnh...":""));
+  await loadTasks(); // load ngay để task hiện lên board
+
+  // ── Bước 2: Upload ảnh riêng — nếu lỗi thì task đã tạo xong rồi, không ảnh hưởng
+  if(photosToUpload.length>0){
+    var uploaded=0;
+    for(var i=0;i<photosToUpload.length;i++){
+      var photo=photosToUpload[i];
+      try{
         var data=await toB64Resized(photo, 1200, 0.82);
         var pr=await apiPost({action:"addTaskPhoto",id:taskId,photo:{name:photo.name,size:photo.size,data:data}});
-        if(!pr||!pr.ok){showToast("Cảnh báo: không upload được ảnh "+photo.name,"error");}
+        if(pr&&pr.ok) uploaded++;
+        else showToast("Không upload được: "+photo.name,"error");
+      }catch(ex){
+        showToast("Lỗi upload ảnh "+photo.name+": "+ex.message,"error");
       }
     }
-    document.getElementById("tk-eng").value="";
-    document.getElementById("tk-fac").value="";
-    document.getElementById("tk-title").value="";
-    document.getElementById("tk-desc").value="";
-    taskPending=[]; renderTaskPreviews();
-    showToast("✅ Đã tạo task cho "+eng);
-    await loadTasks();
-  }catch(e){showToast("Lỗi: "+e.message,"error");}
+    if(uploaded>0){
+      showToast("✅ Đã upload "+uploaded+"/"+photosToUpload.length+" ảnh");
+      // Cập nhật photoCount trong cache task vừa tạo
+      var t=allTasks.find(function(x){return x.id===taskId;});
+      if(t){t.photoCount=uploaded; renderTaskBoard();}
+    }
+  }
 }
 
 async function loadTasks(){
